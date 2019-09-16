@@ -21,14 +21,9 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="import\noizu_auto_trie.c">
+    <ClCompile Include="import\noizu_trie.c">
       <Filter>import</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="import\noizu_auto_trie.h">
-      <Filter>import</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="sample.txt">
@@ -39,5 +34,11 @@
     <None Include="import\generated.gen">
       <Filter>import</Filter>
     </None>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="import\noizu_trie.h">
+      <Filter>import</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

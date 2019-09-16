@@ -1,4 +1,4 @@
-#include "noizu_auto_trie.h"
+#include "noizu_trie.h"
 
 static unsigned int child(char k, unsigned int parent, NoizuStaticTrie* source);
 

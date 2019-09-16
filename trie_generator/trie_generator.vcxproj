@@ -119,17 +119,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="import\noizu_auto_trie.c" />
+    <ClCompile Include="import\noizu_trie.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="import\noizu_auto_trie.h" />
+    <ClInclude Include="import\noizu_trie.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="sample.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="import\generated.gen" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

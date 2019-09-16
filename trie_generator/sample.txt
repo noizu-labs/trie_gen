@@ -1,3 +1,4 @@
-1234|Token With Spaces
-5412|Token2
-5321|Token3
+DEF_VAR_1|Token One
+DEF_VAR_2|Another Token
+1234|Token Three Hundred
+4312|More Tokens
