@@ -1,0 +1,3 @@
+1234|Token With Spaces
+5412|Token2
+5321|Token3
