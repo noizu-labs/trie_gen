@@ -5,6 +5,9 @@
 #define TRUE 1
 #define FALSE 0
 
+/*!
+ * @brief Simple trie for dynamically building structure before writting static version to file. 
+ */
 typedef struct noizu_auto_trie_node {
 	char key;
 
@@ -16,27 +19,68 @@ typedef struct noizu_auto_trie_node {
 	char* termination_code;
 } NoizuAutoTrie;
 
+/*!
+ * @breif Setup for array encoded trie output
+ */
 NoizuAutoTrie* gen_prep(NoizuAutoTrie* root);
+
+/*!
+ * @brief Prep node siblings for code generation (track indexes) 
+ */
 NoizuAutoTrie* gen_prep_siblings(NoizuAutoTrie* n, NoizuAutoTrie* index);
+
+/*!
+ * @brief Prep node childrens for code generation (track indexes)
+ */
 NoizuAutoTrie* gen_prep_children(NoizuAutoTrie* n, NoizuAutoTrie* index);
+
+/*!
+ * @brief Generate code for array or int encoded static trie.
+ */
 void gen(char* genVar, NoizuAutoTrie* index, FILE *fptr);
+/*!
+ * @brief Generate code for array of struct encoded static trie.
+ */
 void gen_struct(char* genVar, NoizuAutoTrie* index, FILE* fptr);
 
+/*!
+ * @brief add string to trie.
+ */
 static void insert(char* token, char* termination_code, NoizuAutoTrie* root);
+
+/*!
+ * @brief obtain trie child (if any) for input character.
+ */
 static NoizuAutoTrie* child(char k, NoizuAutoTrie* parent);
+
+/*!
+ * @brief obtain trie child (if any) for input character or insert.
+ */
 static NoizuAutoTrie* obtain_child(char k, NoizuAutoTrie* parent);
+
+/*!
+ * @brief obtain trie sibling (if any) for input character.
+ */
 static NoizuAutoTrie* sibling(char k, NoizuAutoTrie* parent);
+
+/*!
+ * @brief obtain trie sibling (if any) for input character or insert.
+ */
 static NoizuAutoTrie* obtain_sibling(char k, NoizuAutoTrie* parent);
+
+/*!
+ * @brief walk to next position in trie given input character.
+ */
 static NoizuAutoTrie* advance(char k, NoizuAutoTrie* position);
 
 void gen(char* genVar, NoizuAutoTrie* index, FILE *fptr) {
-	fprintf(fptr, "\n\n#include \"noizu_auto_trie.h\"\n\nNoizuMicroTrie %s[] = {", genVar);
+	fprintf(fptr, "\n\n#include \"noizu_trie_a.h\"\n\nnoizu_trie_a %s[] = {", genVar);
 	fprintf(fptr, "{0, 0, 0, 0}");
 	while (index) {
 		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
 		unsigned int child = index->first_child ? index->first_child->index : 0;
 		char key = index->key;
-		fprintf(fptr, "\n,{'%C', %u, %u, %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
+		fprintf(fptr, ",\n{'%C', %u, %u, %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
 		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
 		index = index->index_route;
 	}
@@ -44,7 +88,7 @@ void gen(char* genVar, NoizuAutoTrie* index, FILE *fptr) {
 }
 
 void gen_struct(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
-	fprintf(fptr, "\n\n#include \"noizu_auto_trie.h\"\n\nNoizuStaticTrie %s[] = {", genVar);
+	fprintf(fptr, "\n\n#include \"noizu_trie_s.h\"\n\noizu_trie_s %s[] = {", genVar);
 	fprintf(fptr, "{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}");
 	while (index) {
 		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
@@ -56,8 +100,6 @@ void gen_struct(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
 	}
 	fprintf(fptr, "};\n");
 }
-
-
 
 NoizuAutoTrie* gen_prep(NoizuAutoTrie* root) {
 	// std::cout << "gen_prep" << "\n";
@@ -110,7 +152,7 @@ static void insert(char* token, char * termination_code, NoizuAutoTrie* root) {
 
 	if (p) {
 		if (p->termination_code) {
-			printf("Error| Path Already Set %s, %s", token, p->termination_code);
+			printf("Error| Path Already Set %s, %s\n", token, p->termination_code);
 		}
 		//printf("Termination Code = %s, %d\n", termination_code, strlen(termination_code));
 		p->termination_code = (char*) malloc((strlen(termination_code) + 1));
@@ -252,16 +294,15 @@ int main(int argc, char *argv[])
 #ifdef PROOF_OF_CONCEPT
 	t();
 #endif
-
 	printf("ARGC = %d, %s\n", argc, argv[0]);
+
+	printf("\n\nARGV2 = %s\n", argv[2]);
 
 	if (argc < 2) {
 		printf("Usage: trie_generator.exe input.txt [output.file|import/generated.gen] [name|trie] [mode|(min|struct)]");
 		return 1;
 	}
 	
-	
-
 	// Setup User Arguments
 	char* inputFile = argv[1];
 	char defaultOutputFile[] = "import/generated.gen";
@@ -269,6 +310,7 @@ int main(int argc, char *argv[])
 	char defaultOutputVar[] = "noizu_trie";
 	char* outputVar = (argc > 3) ? argv[3] : &defaultOutputFile;
 	int structMode = 0;
+
 	if (argc > 4) {
 		structMode = (strncmp(argv[4], "struct", 6) == 0) ? 1 : 0;
 	}
@@ -285,7 +327,7 @@ int main(int argc, char *argv[])
 	}
 	
 	// Parse Input File
-	printf("------------------[Noizu Trie Gen]---------------------\n");
+	printf("------------------[Noizu Trie Gen: %d]---------------------\n", argc);
 	printf("Input File: %s\n", inputFile);
 	printf("Output File: %s\n", outputFile);
 	printf("Output Name: %s\n", outputVar);

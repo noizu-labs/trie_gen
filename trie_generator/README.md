@@ -1,25 +1,38 @@
 Noizu Trie Generator
 ==========================================
 
-The Noizu Trie Generator may be used to create compile time trie lookup table, using either a user friendly array of structs or barebones array or int implementation. 
+The Noizu Trie Generator may be used to create compile time trie lookup table, using either a user friendly array of structs or barebones array or int (or char) implementation. 
+Generate your Trie, copy and paste the generated output into your project and include the noizu_trie.c and noizu_trie.h files in your project path.
 
-Generator your Trie, copy and paste the generated output into your project and include the noizu_trie.c and noizu_trie.h files in your project path.
+Use in combination with the [Noizu Streaming Json](http://github.com/noizu/streaming-json-parser) for fast compact parsing of too large for memory embedded data streams.
 
+# To Use
+Use executable to generate code.
+`trie_generator.exe input.txt [output.file|import/generated.gen] [name|trie] [mode|(min|struct)]`
+
+input.txt - file to extract trie from. 
+output.file - output file for generated trie
+name - name of generated trie variable. 
+mode - array of int or array of struct encoded trie. 
+
+Include appropriate noizu_trie_a.h and noizu_trie_a.c or noizu_trie_s.h, noizu_trie_s.c in your applications include path.
+
+# Examples
 
 ```
-typedef int NoizuMicroTrie[4];
+typedef int noizu_trie_a[4];
 
 // Example 
 trie_generator.exe sample.text import/generated.gen my_trie
 
-// Input
+// Input  (Macro Def, Enum or Integer Identifier for Input String)
 DEF_VAR_1|Token One
 DEF_VAR_2|Another Token
 1234|Token Three Hundred
 4312|More Tokens
 
 // Output
-NoizuMicroTrie my_trie[] = {{0, 0, 0, 0}
+noizu_trie_a my_trie[] = {{0, 0, 0, 0}
 ,{'*', 0, 2, 0}
 ,{'A', 3, 36, 0}
 ,{'M', 4, 5, 0}
@@ -74,12 +87,12 @@ NoizuMicroTrie my_trie[] = {{0, 0, 0, 0}
 
 
 ```
-typedef struct noizu_static_trie {
+typedef struct noizu_trie_s {
 	char key;
 	unsigned int next_sibling;
 	unsigned int first_child;
 	unsigned int termination_code;
-} NoizuStaticTrie;
+} noizu_trie_s;
 
 
 // Example 
@@ -92,7 +105,7 @@ DEF_VAR_2|Another Token
 4312|More Tokens
 
 
-NoizuStaticTrie forecast_trie[] = {{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}
+noizu_trie_s forecast_trie[] = {{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}
 ,{.key = '*', .next_sibling = 0, .first_child = 2, .termination_code = 0}
 ,{.key = 'A', .next_sibling = 3, .first_child = 36, .termination_code = 0}
 ,{.key = 'M', .next_sibling = 4, .first_child = 5, .termination_code = 0}

@@ -16,13 +16,25 @@
     <Filter Include="import">
       <UniqueIdentifier>{99504923-f5af-4d67-bb13-e1be395cbd74}</UniqueIdentifier>
     </Filter>
+    <Filter Include="output">
+      <UniqueIdentifier>{6dfe9a84-5dab-4b7b-8c2f-b9964d287017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="import\struct_implementation">
+      <UniqueIdentifier>{3dad44d2-81b6-4733-bd6d-7fbc3ae70f20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="import\array_implementation">
+      <UniqueIdentifier>{ebf85993-189f-45b3-b2f4-3c252c0930c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="import\noizu_trie.c">
-      <Filter>import</Filter>
+    <ClCompile Include="import\array_implementation\noizu_trie_a.c">
+      <Filter>import\array_implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="import\struct_implementation\noizu_trie_s.c">
+      <Filter>import\struct_implementation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -31,14 +43,17 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="import\generated.gen">
-      <Filter>import</Filter>
-    </None>
     <None Include="README.md" />
+    <None Include="output\generated.gen">
+      <Filter>output</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="import\noizu_trie.h">
-      <Filter>import</Filter>
+    <ClInclude Include="import\array_implementation\noizu_trie_a.h">
+      <Filter>import\array_implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="import\struct_implementation\noizu_trie_s.h">
+      <Filter>import\struct_implementation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
