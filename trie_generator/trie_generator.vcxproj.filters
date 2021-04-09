@@ -25,6 +25,9 @@
     <Filter Include="import\array_implementation">
       <UniqueIdentifier>{ebf85993-189f-45b3-b2f4-3c252c0930c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="import\compact_struct_implementation">
+      <UniqueIdentifier>{f7ed7c47-6855-4ed4-8cdb-a439988afc70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -35,6 +38,12 @@
     </ClCompile>
     <ClCompile Include="import\struct_implementation\noizu_trie_s.c">
       <Filter>import\struct_implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="import\compact_struct_implementation\noizu_trie_c.c">
+      <Filter>import\compact_struct_implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_generator.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +63,12 @@
     </ClInclude>
     <ClInclude Include="import\struct_implementation\noizu_trie_s.h">
       <Filter>import\struct_implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="import\compact_struct_implementation\noizu_trie_c.h">
+      <Filter>import\compact_struct_implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="trie_generator.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,2 +1,5 @@
 Debug
 .vs
+trie_generator/trie_generator.vcxproj.user
+trie_generator/sample.txt
+trie_generator/output/generated.gen
