@@ -5,6 +5,28 @@
 #define TRUE 1
 #define FALSE 0
 
+
+
+typedef struct noizu_auto_trie_compact_token_node {
+	unsigned int node_index;
+	char* token;
+	struct noizu_auto_trie_compact_token_node* next;
+} noizu_auto_trie_compact_token_node;
+
+
+typedef struct noizu_auto_trie_compact_details {
+	unsigned char char_reverse[256];
+	unsigned char char_map[256];
+	unsigned char char_count;
+	unsigned largest_sibling_jump;
+	unsigned largest_child_jump;
+
+	unsigned int node_count;
+	unsigned int token_count;
+	noizu_auto_trie_compact_token_node* token_map;
+	noizu_auto_trie_compact_token_node* token_map_tail;
+} noizu_auto_trie_compact_details;
+
 /*!
  * @brief Simple trie for dynamically building structure before writting static version to file. 
  */
@@ -14,10 +36,19 @@ typedef struct noizu_auto_trie_node {
 	unsigned int index;
 	struct noizu_auto_trie_node* index_route;
 
+	unsigned int relative_sibling_index;
+	unsigned int relative_child_index;
+
 	struct noizu_auto_trie_node* next_sibling;
 	struct noizu_auto_trie_node* first_child;
 	char* termination_code;
 } NoizuAutoTrie;
+
+void gen_prep_details(NoizuAutoTrie* n, noizu_auto_trie_compact_details* details);
+unsigned int log2(unsigned int v);
+void gen(char* genVar, NoizuAutoTrie* index, FILE* fptr);
+void gen_struct(char* genVar, NoizuAutoTrie* index, FILE* fptr);
+void gen_compact(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_compact_details* details, FILE* fptr);
 
 /*!
  * @breif Setup for array encoded trie output
@@ -28,11 +59,13 @@ NoizuAutoTrie* gen_prep(NoizuAutoTrie* root);
  * @brief Prep node siblings for code generation (track indexes) 
  */
 NoizuAutoTrie* gen_prep_siblings(NoizuAutoTrie* n, NoizuAutoTrie* index);
+NoizuAutoTrie* gen_prep_siblings_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* index);
 
 /*!
  * @brief Prep node childrens for code generation (track indexes)
  */
 NoizuAutoTrie* gen_prep_children(NoizuAutoTrie* n, NoizuAutoTrie* index);
+NoizuAutoTrie* gen_prep_children_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* index);
 
 /*!
  * @brief Generate code for array or int encoded static trie.
@@ -73,41 +106,60 @@ static NoizuAutoTrie* obtain_sibling(char k, NoizuAutoTrie* parent);
  */
 static NoizuAutoTrie* advance(char k, NoizuAutoTrie* position);
 
-void gen(char* genVar, NoizuAutoTrie* index, FILE *fptr) {
-	fprintf(fptr, "\n\n#include \"noizu_trie_a.h\"\n\nnoizu_trie_a %s[] = {", genVar);
-	fprintf(fptr, "{0, 0, 0, 0}");
-	while (index) {
-		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
-		unsigned int child = index->first_child ? index->first_child->index : 0;
-		char key = index->key;
-		fprintf(fptr, ",\n{'%C', %u, %u, %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
-		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
-		index = index->index_route;
-	}
-	fprintf(fptr, "};\n");
-}
-
-void gen_struct(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
-	fprintf(fptr, "\n\n#include \"noizu_trie_s.h\"\n\noizu_trie_s %s[] = {", genVar);
-	fprintf(fptr, "{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}");
-	while (index) {
-		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
-		unsigned int child = index->first_child ? index->first_child->index : 0;
-		char key = index->key;
-		fprintf(fptr, "\n,{.key = '%C', .next_sibling = %u, .first_child = %u, .termination_code = %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
-		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
-		index = index->index_route;
-	}
-	fprintf(fptr, "};\n");
-}
-
 NoizuAutoTrie* gen_prep(NoizuAutoTrie* root) {
 	// std::cout << "gen_prep" << "\n";
 	NoizuAutoTrie* p = root;
 	p->index = 1;
 	p = gen_prep_siblings(root, p);
 	p = gen_prep_children(root, p);
+
+
 	return p;
+}
+
+
+void gen_prep_details(NoizuAutoTrie* n, noizu_auto_trie_compact_details* details) {
+	while (n) {
+
+		// Sibling Distance.
+		if (n->next_sibling) {
+			n->relative_sibling_index = n->next_sibling->index - n->index;
+			details->largest_sibling_jump = (n->relative_sibling_index > details->largest_sibling_jump) ? n->relative_sibling_index : details->largest_sibling_jump;
+		}
+
+		// Child Distance.
+		if (n->first_child) {
+			n->relative_child_index = n->first_child->index - n->index;
+			details->largest_child_jump = (n->relative_child_index > details->largest_child_jump) ? n->relative_child_index : details->largest_child_jump;
+		}
+
+		// Character Map
+		if (details->char_reverse[n->key] == 0) {
+			details->char_reverse[n->key] = details->char_count + 1;
+			details->char_map[details->char_count] = n->key;
+			details->char_count++;
+		}
+
+		// Token Map
+		if (n->termination_code) {
+			details->token_count++;
+			if (details->token_map == NULL) {
+				details->token_map = (noizu_auto_trie_compact_token_node*)malloc(sizeof(noizu_auto_trie_compact_token_node));
+				memset(details->token_map, 0, sizeof(noizu_auto_trie_compact_token_node));
+				details->token_map_tail = details->token_map;
+			}
+			else {
+				details->token_map_tail->next = (noizu_auto_trie_compact_token_node*)malloc(sizeof(noizu_auto_trie_compact_token_node));
+				memset(details->token_map_tail->next, 0, sizeof(noizu_auto_trie_compact_token_node));
+				details->token_map_tail = details->token_map_tail->next;
+			}
+			details->token_map_tail->node_index = n->index;
+			details->token_map_tail->token = n->termination_code;
+		}
+		
+		details->node_count++;
+		n = n->index_route;
+	}
 }
 
 NoizuAutoTrie* gen_prep_children(NoizuAutoTrie* n, NoizuAutoTrie* index) {
@@ -124,6 +176,8 @@ NoizuAutoTrie* gen_prep_children(NoizuAutoTrie* n, NoizuAutoTrie* index) {
 	return index;
 }
 
+
+
 NoizuAutoTrie* gen_prep_siblings(NoizuAutoTrie* n, NoizuAutoTrie* index) {
 	// std::cout << "gen_prep_siblings " << n->key << "\n";
 	NoizuAutoTrie* p = n->next_sibling;
@@ -138,6 +192,50 @@ NoizuAutoTrie* gen_prep_siblings(NoizuAutoTrie* n, NoizuAutoTrie* index) {
 	while (p) {
 		// std::cout << "gen_prep_siblings ++ " << p->key << "\n";
 		index = gen_prep_children(p, index);
+		p = p->next_sibling;
+	}
+	return index;
+}
+
+
+
+
+NoizuAutoTrie* gen_prep_depth_first(NoizuAutoTrie* root) {
+	// std::cout << "gen_prep" << "\n";
+	NoizuAutoTrie* p = root;
+	p->index = 1;
+	p = gen_prep_children_depth_first(root, p);
+	p = gen_prep_siblings_depth_first(root, p);
+
+
+
+	return p;
+}
+
+
+NoizuAutoTrie* gen_prep_children_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* index) {
+	// std::cout << "gen_prep_children" << "\n";
+	if (n->first_child) {
+		// std::cout << "gen_prep_children+" << "\n";
+		n->first_child->index = index->index + 1;
+		index->index_route = n->first_child;
+		index = n->first_child;
+		index = gen_prep_children_depth_first(n->first_child, index);
+		index = gen_prep_siblings_depth_first(n->first_child, index);
+	}
+
+	return index;
+}
+
+NoizuAutoTrie* gen_prep_siblings_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* index) {
+	// std::cout << "gen_prep_siblings " << n->key << "\n";
+	NoizuAutoTrie* p = n->next_sibling;
+	while (p) {
+		// std::cout << "gen_prep_siblings + " << p->key << "\n";
+		p->index = index->index + 1;
+		index->index_route = p;
+		index = p;
+		index = gen_prep_children_depth_first(p, index);
 		p = p->next_sibling;
 	}
 	return index;
@@ -310,10 +408,13 @@ int main(int argc, char *argv[])
 	char defaultOutputVar[] = "noizu_trie";
 	char* outputVar = (argc > 3) ? argv[3] : &defaultOutputFile;
 	int structMode = 0;
+	int compactMode = 0;
 
 	if (argc > 4) {
 		structMode = (strncmp(argv[4], "struct", 6) == 0) ? 1 : 0;
+		compactMode = (strncmp(argv[4], "compact", 6) == 0) ? 1 : 0;
 	}
+	//compactMode = 1;
 
 	// Setup Root Node
 	NoizuAutoTrie* root = (NoizuAutoTrie*)malloc(sizeof(NoizuAutoTrie));	
@@ -353,22 +454,52 @@ int main(int argc, char *argv[])
 			}
 			line[pos] = '\0';
 			//printf("Line: %s\n", line);
-			char token[255];
-			char code[255];
-			if (sscanf_s(line, "%[^|\n\r ]|%[^\n\r]", code, 255, token, 255) == 2) {
+			char token[256] = { 0 };
+			char code[256] = { 0 };
+
+			if (sscanf_s(line, "#! GENERATE `%[^|\n\r`]`", token, 255) == 1) {
+				outputVar = malloc(strlen(token) + 1);
+				if (outputVar) {
+					strncpy_s(outputVar, strlen(token) + 1, token, 255);
+				}				
+			} else if (strncmp(line, "#", 1) == 0) {
+				// do nothing
+			}
+			else if (sscanf_s(line, "%[^|\n\r ]|%[^\n\r]", code, 255, token, 255) == 2) {
 				insert(token, code, root);
 			}
 
 			if (c == EOF) break;			
 		}
+
+
+		
 		
 		err = fopen_s(&fptr, outputFile, "w");
 		if (!err && fptr) {
-			gen_prep(root);
-			if (structMode) {
+			
+
+			if (compactMode) {
+				gen_prep_depth_first(root);
+				noizu_auto_trie_compact_details* details = (noizu_auto_trie_compact_details*)malloc(sizeof(noizu_auto_trie_compact_details));
+				if (details) {
+					memset(details, 0, sizeof(noizu_auto_trie_compact_details));
+				}
+				else {
+					printf("[Error] Malloc Fail Line:%d", __LINE__);
+					return 1;
+				}
+
+				// calculate compact implementation details. 
+				gen_prep_details(root, details);
+				gen_compact(outputVar, root, details, fptr);
+
+			} else if (structMode) {
+				gen_prep(root);
 				gen_struct(outputVar, root, fptr);
 			}
 			else {
+				gen_prep(root);
 				gen(outputVar, root, fptr);
 			}			
 			fclose(fptr);
@@ -388,3 +519,193 @@ int main(int argc, char *argv[])
 
 
 
+
+
+void gen(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
+	fprintf(fptr, "\n\n#include \"noizu_trie_a.h\"\n\nconst noizu_trie_a %s[] = {\n", genVar);
+	fprintf(fptr, "\t{0, 0, 0, 0}");
+	while (index) {
+		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
+		unsigned int child = index->first_child ? index->first_child->index : 0;
+		char key = index->key;
+		fprintf(fptr, ",\n\t{'%C', %u, %u, %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
+		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
+		index = index->index_route;
+	}
+	fprintf(fptr, "\n};\n");
+}
+
+void gen_compact(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_compact_details* details, FILE* fptr) {
+	unsigned int i;
+	fprintf(fptr, "\n\n#include \"noizu_trie_compact.h\"\n\n");
+	// Output Meta Details
+
+	// Char Map
+	fprintf(fptr, "\n\n// %s: CharMap\n", genVar);
+	fprintf(fptr, "TRIE_C_CHAR %s_cm(TRIE_C_CHAR c) {\n", genVar);
+	for (i = 0; i < details->char_count; i++) {
+		unsigned int c = details->char_map[i];
+		if (i == 0) {
+			fprintf(fptr, "    if (c == '%c') return %d;\n", c, i + 1);
+		}
+		else {
+			fprintf(fptr, "    if (c == '%c') return %d;\n", c, i + 1);
+		}
+		
+	}
+	fprintf(fptr, "    return 0;\n}\n\n");
+
+	fprintf(fptr, "TRIE_C_CHAR[] %s_chars = {", genVar);
+	for (i = 0; i < details->char_count; i++) {
+		unsigned int c = details->char_map[i];
+		if (i == 0) {
+			fprintf(fptr, "'%c'", c);
+		}
+		else {
+			fprintf(fptr, ", '%c'", c);
+		}
+	}
+	fprintf(fptr, "};");
+
+
+	// Token Set
+	fprintf(fptr, "\n\n// %s: SetToken\n", genVar);
+	fprintf(fptr, "bool %s_token(bool clear, noizu_trie_compact_state* state, noizu_trie_compact_definition* definition) {\n    bool has_token = true;\n    TRIE_C_TOKEN token = 0;\n    TRIE_C_UNIT index = state->trie_index;\n", genVar);
+	noizu_auto_trie_compact_token_node* t = details->token_map;
+	int f = 1;
+	while (t) {
+		if (f) {
+			f = 0;
+			fprintf(fptr, "    if (index == %d) token = %s;\n", t->node_index - 1, t->token);
+		}
+		else {
+			fprintf(fptr, "    else if (index == %d) token = %s;\n", t->node_index - 1, t->token);
+		}
+		t = t->next;
+	}
+	fprintf(fptr, "    else has_token = false;\n\n");
+	fprintf(fptr, "    if (clear && !has_token) {\n        state->token = 0;\n        state->token_index = 0;\n    }\n");
+	fprintf(fptr, "    if (has_token) {\n    state->token = token;\n    state->token_index = state->trie_index;\n    }\n");
+	fprintf(fptr, "    return has_token;\n}\n\n");
+
+	// Nodes
+	unsigned int field_width = log2(details->char_count) + log2(details->largest_sibling_jump) + 1; // log2(details->largest_child_jump);
+	unsigned int _tb = field_width * details->node_count;
+	unsigned int total_bytes = ((_tb - (_tb % 8)) / 8) + ((_tb % 8) ? 1 : 0);
+	
+	unsigned char* raw = malloc(total_bytes);
+	if (raw == NULL) return;
+	memset(raw, 0, total_bytes);
+
+	unsigned int char_bits = log2(details->char_count);
+	unsigned int jump_bits = log2(details->largest_sibling_jump);
+	unsigned long bit = 0;
+	NoizuAutoTrie* n = index;
+	while (n) {
+		unsigned char set = 0;
+		unsigned int j, _byte, _byte_bit;
+		
+		// apply char code bits
+		unsigned int c = details->char_reverse[n->key];
+		for (j = 0; j < char_bits; j++) {
+			_byte = (bit - (bit % 8)) / 8;
+			_byte_bit = (bit % 8);
+
+			set = c & (1 << (char_bits - j - 1));
+			if (set) {
+				raw[_byte] |= (1 << (7 - _byte_bit));
+			}
+			bit++;
+		}
+
+		// apply sibling jump code bits
+		c = n->relative_sibling_index;
+		for (j = 0; j < jump_bits; j++) {
+			_byte = (bit - (bit % 8)) / 8;
+			_byte_bit = (bit % 8);
+
+			set = c & (1 << (jump_bits - j - 1));
+			if (set) {
+				raw[_byte] |= (1 << (7 - _byte_bit));
+			}
+			bit++;
+		}
+
+		// apply child bit
+		if (n->relative_child_index) {
+			_byte = (bit - (bit % 8)) / 8;
+			_byte_bit = (bit % 8);
+			raw[_byte] |= (1 << (7 - _byte_bit));
+		}
+		bit++;
+		n = n->index_route;
+	}
+
+	fprintf(fptr, "\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
+	fprintf(fptr, "// unsigned char[] %s_node_map_wip = {\n", genVar);
+	for (i = 0; i < total_bytes; i++) {
+		fprintf(fptr, "%#04X,", raw[i]);
+		if (i != 0 && ((i + 1) % 4) == 0) fprintf(fptr, "\n");
+	}
+	fprintf(fptr, "};\n");
+	free(raw);
+
+	n = index;
+	fprintf(fptr, "\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
+	fprintf(fptr, "// %s_node_map_wip = [\n", genVar);
+	while (n) {
+		unsigned int c = details->char_reverse[n->key];
+		fprintf(fptr, "// index %d| char:%c(%d), sib_jump: %d, child_jump: %d|%s,\n", n->index -1, n->key, c, n->relative_sibling_index, n->relative_child_index, n->termination_code ? n->termination_code : "");
+		n = n->index_route;
+	}
+	fprintf(fptr, "// ];\n");
+
+	
+
+	fprintf(fptr, "\n\n// %s: Compact Trie Definition, max_sibling_jump=%d rows\n", genVar, details->largest_sibling_jump);
+	fprintf(fptr, "noizu_trie_compact_definition %s = {\n", genVar);
+	fprintf(fptr, "    .size = %d,\n", details->node_count);
+	fprintf(fptr, "    .tokens = %d,\n", details->token_count);
+	fprintf(fptr, "    .characters = %d,\n", details->char_count);
+	fprintf(fptr, "    .bit_length__character_code = %d,\n", log2(details->char_count));
+	fprintf(fptr, "    .bit_length__sibling_relative_index = %d,\n", log2(details->largest_sibling_jump));
+	// Always 1 bit fprintf(fptr, "    .bit_length__child_relative_index = %d,\n", log2(details->largest_child_jump));
+	fprintf(fptr, "    .trie_raw = %s_node_map,\n", genVar);
+	fprintf(fptr, "    .char_map = %s_chars,\n", genVar);
+	fprintf(fptr, "    .set_node_token = %s_token,\n", genVar);
+	fprintf(fptr, "    .char_code = %s_cm\n", genVar);
+	fprintf(fptr, "};\n");
+
+
+
+}
+
+unsigned int log2(unsigned int v) {
+	if (v < 2) return 1;
+	if (v < 4) return 2;
+	if (v < 8) return 3;
+	if (v < 16) return 4;
+	if (v < 32) return 5;
+	if (v < 64) return 6;
+	if (v < 128) return 7;
+	if (v < 256) return 8;
+	if (v < 512) return 9;
+	if (v < 1024) return 10;
+	if (v < 2048) return 11;
+	if (v < 4096) return 12;
+	return 13;
+}
+
+void gen_struct(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
+	fprintf(fptr, "\n\n#include \"noizu_trie_s.h\"\n\nnoizu_trie_s %s[] = {", genVar);
+	fprintf(fptr, "{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}");
+	while (index) {
+		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
+		unsigned int child = index->first_child ? index->first_child->index : 0;
+		char key = index->key;
+		fprintf(fptr, "\n,{.key = '%C', .next_sibling = %u, .first_child = %u, .termination_code = %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
+		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
+		index = index->index_route;
+	}
+	fprintf(fptr, "};\n");
+}
