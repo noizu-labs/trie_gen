@@ -337,7 +337,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	}
 	fprintf(fptr, "    return 0;\n}\n\n");
 
-	fprintf(fptr, "TRIE_C_CHAR[] %s_chars = {", genVar);
+	fprintf(fptr, "TRIE_C_CHAR %s_chars[] = {", genVar);
 	for (i = 0; i < details->char_count; i++) {
 		unsigned int c = details->char_map[i];
 		if (i == 0) {
@@ -352,7 +352,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 	// Token Set
 	fprintf(fptr, "\n\n// %s: SetToken\n", genVar);
-	fprintf(fptr, "bool %s_token(bool clear, noizu_trie_compact_state* state, noizu_trie_compact_definition* definition) {\n    bool has_token = true;\n    TRIE_C_TOKEN token = 0;\n    TRIE_C_UNIT index = state->trie_index;\n", genVar);
+	fprintf(fptr, "TRIE_C_TOKEN %s_token(TRIE_C_TOKEN clear, noizu_trie_compact_state* state, noizu_trie_compact_definition* definition) {\n    TRIE_C_TOKEN has_token = 1;\n    TRIE_C_TOKEN token = 0;\n    TRIE_C_UNIT index = state->trie_index;\n", genVar);
 	noizu_auto_trie_compact_token_node* t = details->token_map;
 	int f = 1;
 	while (t) {
@@ -365,10 +365,17 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 		}
 		t = t->next;
 	}
-	fprintf(fptr, "    else has_token = false;\n\n");
+	fprintf(fptr, "    else has_token = 0;\n\n");
+
+
+
+	
+	fprintf(fptr, "    if (((clear && !has_token) || has_token) && state->token != TRIE_NOT_FOUND) {\n        state->last_token = state->token;\n        state->last_token_index == state->token_index;\n    }\n");
+	fprintf(fptr, "    if (clear && !has_token) {\n        state->token = 0;\n        state->token_index = 0;\n    }\n");
+
 	fprintf(fptr, "    if (clear && !has_token) {\n        state->token = 0;\n        state->token_index = 0;\n    }\n");
 	fprintf(fptr, "    if (has_token) {\n    state->token = token;\n    state->token_index = state->trie_index;\n    }\n");
-	fprintf(fptr, "    return has_token;\n}\n\n");
+	fprintf(fptr, "    return (has_token ? TRIE_PARTIAL_MATCH : TRIE_NOT_FOUND);\n}\n\n");
 
 	// Nodes
 	unsigned int field_width = log2(details->char_count) + log2(details->largest_sibling_jump) + 1; // log2(details->largest_child_jump);
@@ -424,23 +431,13 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	}
 
 	fprintf(fptr, "\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
-	fprintf(fptr, "// unsigned char[] %s_node_map_wip = {\n", genVar);
+	fprintf(fptr, "unsigned char %s_node_map[] = {\n", genVar);
 	for (i = 0; i < total_bytes; i++) {
 		fprintf(fptr, "%#04X,", raw[i]);
 		if (i != 0 && ((i + 1) % 4) == 0) fprintf(fptr, "\n");
 	}
 	fprintf(fptr, "};\n");
 	free(raw);
-
-	n = index;
-	fprintf(fptr, "\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
-	fprintf(fptr, "// %s_node_map_wip = [\n", genVar);
-	while (n) {
-		unsigned int c = details->char_reverse[n->key];
-		fprintf(fptr, "// index %d| char:%c(%d), sib_jump: %d, child_jump: %d|%s,\n", n->index - 1, n->key, c, n->relative_sibling_index, n->relative_child_index, n->termination_code ? n->termination_code : "");
-		n = n->index_route;
-	}
-	fprintf(fptr, "// ];\n");
 
 
 
@@ -451,12 +448,32 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	fprintf(fptr, "    .characters = %d,\n", details->char_count);
 	fprintf(fptr, "    .bit_length__character_code = %d,\n", log2(details->char_count));
 	fprintf(fptr, "    .bit_length__sibling_relative_index = %d,\n", log2(details->largest_sibling_jump));
-	// Always 1 bit fprintf(fptr, "    .bit_length__child_relative_index = %d,\n", log2(details->largest_child_jump));
+	// Always 1 bit 
+	fprintf(fptr, "    .bit_length__child_relative_index = %d,\n", log2(details->largest_child_jump));
+	fprintf(fptr, "    .bit_length__child_relative_offset = %d,\n", log2(details->char_count) + log2(details->largest_sibling_jump));
+	fprintf(fptr, "    .bit_length = %d,\n", log2(details->char_count) + log2(details->largest_sibling_jump) + log2(details->largest_child_jump));
 	fprintf(fptr, "    .trie_raw = %s_node_map,\n", genVar);
+	fprintf(fptr, "    .trie_raw_length = %d,\n", total_bytes);
+
+	
 	fprintf(fptr, "    .char_map = %s_chars,\n", genVar);
 	fprintf(fptr, "    .set_node_token = %s_token,\n", genVar);
 	fprintf(fptr, "    .char_code = %s_cm\n", genVar);
 	fprintf(fptr, "};\n");
+
+
+
+	n = index;
+	fprintf(fptr, "\n\n\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
+	fprintf(fptr, " /*\n");
+	fprintf(fptr, " * %s_node_map_encoding = [\n", genVar);
+	while (n) {
+		unsigned int c = details->char_reverse[n->key];
+		fprintf(fptr, " * index %d| char:%c(%d), sib_jump: %d, child_jump: %d|%s,\n", n->index - 1, n->key, c, n->relative_sibling_index, n->relative_child_index, n->termination_code ? n->termination_code : "");
+		n = n->index_route;
+	}
+	fprintf(fptr, " * ];\n");
+	fprintf(fptr, " */\n");
 
 
 

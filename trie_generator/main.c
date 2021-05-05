@@ -1,26 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "trie_generator.h";
-
-
 
 int main(int argc, char *argv[])
 {
-#ifdef PROOF_OF_CONCEPT
-	t();
-#endif
-	printf("ARGC = %d, %s\n", argc, argv[0]);
-
-	printf("\n\nARGV2 = %s\n", argv[2]);
-
-	if (argc < 2) {
-		printf("Usage: trie_generator.exe input.txt [output.file|import/generated.gen] [name|trie] [mode|(min|struct)]");
-		return 1;
-	}
-	
-	// Setup User Arguments
 	char* inputFile = argv[1];
 	char defaultOutputFile[] = "import/generated.gen";
 	char* outputFile = (argc > 2) ? argv[2] : &defaultOutputFile;
@@ -29,14 +13,40 @@ int main(int argc, char *argv[])
 	int structMode = 0;
 	int compactMode = 0;
 
+    //---------------------------------
+	// Command Line Args
+	//---------------------------------
+	printf("ARGC = %d, %s\n", argc, argv[0]);
+	printf("\n\nARGV2 = %s\n", argv[2]);
+
+	if (argc < 2) {
+		printf("Usage: trie_generator.exe input.txt [output.file|import/generated.gen] [name|trie] [mode|(min|struct|compact)]");
+		return 1;
+	}
+	
 	if (argc > 4) {
 		structMode = (strncmp(argv[4], "struct", 6) == 0) ? 1 : 0;
 		compactMode = (strncmp(argv[4], "compact", 6) == 0) ? 1 : 0;
 	}
-	//compactMode = 1;
 
-	// Setup Root Node
-	NoizuAutoTrie* root = (NoizuAutoTrie*)malloc(sizeof(NoizuAutoTrie));	
+
+	//compactMode = 1;
+	
+
+	//---------------------------------
+	// Runtime Settings
+	//---------------------------------
+	printf("------------------[Noizu Trie Gen: %d]---------------------\n", argc);
+	printf("Input File: %s\n", inputFile);
+	printf("Output File: %s\n", outputFile);
+	printf("Output Name: %s\n", outputVar);
+	printf("Trie Type: %s\n", structMode ? "NoizuStaticTrie" : (compactMode ? "NoizuCompactTrie" : "NoizuMicroTrie"));
+	printf("-------------------------------------------------------\n");
+
+	//---------------------------------
+	// Load Trie
+	//---------------------------------
+	NoizuAutoTrie* root = (NoizuAutoTrie*)malloc(sizeof(NoizuAutoTrie));
 	if (root) {
 		memset(root, 0, sizeof(NoizuAutoTrie));
 		root->key = '*';
@@ -45,14 +55,6 @@ int main(int argc, char *argv[])
 		printf("[Error] Malloc Fail Line:%d", __LINE__);
 		return 1;
 	}
-	
-	// Parse Input File
-	printf("------------------[Noizu Trie Gen: %d]---------------------\n", argc);
-	printf("Input File: %s\n", inputFile);
-	printf("Output File: %s\n", outputFile);
-	printf("Output Name: %s\n", outputVar);
-	printf("Trie Type: %s\n", structMode ? "NoizuStaticTrie" : "NoizuMicroTrie");
-	printf("-------------------------------------------------------\n");
 
 	FILE *fptr;
 	errno_t err;
@@ -82,17 +84,18 @@ int main(int argc, char *argv[])
 					strncpy_s(outputVar, strlen(token) + 1, token, 255);
 				}				
 			} else if (strncmp(line, "#", 1) == 0) {
-				// do nothing
+				// Comment
 			}
 			else if (sscanf_s(line, "%[^|\n\r ]|%[^\n\r]", code, 255, token, 255) == 2) {
 				insert(token, code, root);
 			}
-
 			if (c == EOF) break;			
 		}
 
 
-		
+		//---------------------------------
+		// Output Trie
+		//---------------------------------
 		
 		err = fopen_s(&fptr, outputFile, "w");
 		if (!err && fptr) {
@@ -133,6 +136,5 @@ int main(int argc, char *argv[])
 	else {
 		printf("\n\n[Error] - Opening Input File %s", inputFile);
 		return 3;
-	}	
+	}
 }
-
