@@ -158,7 +158,7 @@ noizu_trie_s forecast_trie[] = {{.key = 0, .next_sibling = 0, .first_child = 0, 
 ```
 
 
-## Ultra Compat Implemntation
+##  Bit packed implementation
 ```
 // _my_trie: CharMap
 TRIE_C_CHAR _my_trie_cm(TRIE_C_CHAR c) {
