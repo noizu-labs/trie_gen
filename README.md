@@ -203,13 +203,9 @@ TRIE_C_TOKEN _my_trie_token(TRIE_C_TOKEN clear, noizu_trie_compact_state* state,
         state->token = 0;
         state->token_index = 0;
     }
-    if (clear && !has_token) {
-        state->token = 0;
-        state->token_index = 0;
-    }
     if (has_token) {
-    state->token = token;
-    state->token_index = state->trie_index;
+        state->token = token;
+        state->token_index = state->trie_index;
     }
     return (has_token ? TRIE_PARTIAL_MATCH : TRIE_NOT_FOUND);
 }
