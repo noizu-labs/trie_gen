@@ -1,52 +1,202 @@
 
 
-#include "noizu_trie_a.h"
+#include "noizu_trie_compact.h"
 
-noizu_trie_a my_trie[] = {{0, 0, 0, 0},
-{'*', 0, 2, 0},
-{'A', 3, 36, 0},
-{'M', 4, 5, 0},
-{'T', 0, 15, 0},
-{'o', 0, 6, 0},
-{'r', 0, 7, 0},
-{'e', 0, 8, 0},
-{' ', 0, 9, 0},
-{'T', 0, 10, 0},
-{'o', 0, 11, 0},
-{'k', 0, 12, 0},
-{'e', 0, 13, 0},
-{'n', 0, 14, 0},
-{'s', 0, 0, 4312},
-{'o', 0, 16, 0},
-{'k', 0, 17, 0},
-{'e', 0, 18, 0},
-{'n', 0, 19, 0},
-{' ', 0, 20, 0},
-{'O', 21, 34, 0},
-{'T', 0, 22, 0},
-{'h', 0, 23, 0},
-{'r', 0, 24, 0},
-{'e', 0, 25, 0},
-{'e', 0, 26, 0},
-{' ', 0, 27, 0},
-{'H', 0, 28, 0},
-{'u', 0, 29, 0},
-{'n', 0, 30, 0},
-{'d', 0, 31, 0},
-{'r', 0, 32, 0},
-{'e', 0, 33, 0},
-{'d', 0, 0, 1234},
-{'n', 0, 35, 0},
-{'e', 0, 0, DEF_VAR_1},
-{'n', 0, 37, 0},
-{'o', 0, 38, 0},
-{'t', 0, 39, 0},
-{'h', 0, 40, 0},
-{'e', 0, 41, 0},
-{'r', 0, 42, 0},
-{' ', 0, 43, 0},
-{'T', 0, 44, 0},
-{'o', 0, 45, 0},
-{'k', 0, 46, 0},
-{'e', 0, 47, 0},
-{'n', 0, 0, DEF_VAR_2}};
+
+
+// _my_trie: CharMap
+TRIE_C_CHAR _my_trie_cm(TRIE_C_CHAR c) {
+    if (c == '*') return 1;
+    if (c == 'c') return 2;
+    if (c == 'o') return 3;
+    if (c == 'n') return 4;
+    if (c == 't') return 5;
+    if (c == 'e') return 6;
+    if (c == 's') return 7;
+    if (c == 'd') return 8;
+    if (c == 'g') return 9;
+    if (c == 'r') return 10;
+    if (c == '_') return 11;
+    if (c == 'l') return 12;
+    if (c == 'i') return 13;
+    if (c == 'u') return 14;
+    if (c == 'a') return 15;
+    if (c == 'b') return 16;
+    if (c == 'f') return 17;
+    if (c == 'p') return 18;
+    if (c == 'v') return 19;
+    if (c == 'h') return 20;
+    if (c == 'm') return 21;
+    if (c == 'y') return 22;
+    if (c == 'w') return 23;
+    return 0;
+}
+
+TRIE_C_CHAR _my_trie_chars[] = {'*', 'c', 'o', 'n', 't', 'e', 's', 'd', 'g', 'r', '_', 'l', 'i', 'u', 'a', 'b', 'f', 'p', 'v', 'h', 'm', 'y', 'w'};
+
+// _my_trie: GetToken
+TRIE_TOKEN _my_trie_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {
+    *has_token = 1;
+    TRIE_TOKEN token = 0;
+    
+    if (index == 8) token = JK_CONTENTS;
+    else if (index == 23) token = JV_DEGREES_CELSIUS;
+    else if (index == 30) token = JK_ENABLED;
+    else if (index == 38) token = JK_FEATURED;
+    else if (index == 43) token = JK_FIELDS;
+    else if (index == 46) token = JK_ONE;
+    else if (index == 52) token = JK_OPTIONS;
+    else if (index == 69) token = JV_RELATIVE_HUMIDITY;
+    else if (index == 74) token = JK_THREE;
+    else if (index == 76) token = JK_TWO;
+    else *has_token = 0;
+
+    return token;
+}
+
+
+
+// _my_trie: Node Binary| Bits per field = 11, required = 106
+unsigned char _my_trie_node_map[] = {
+0X08,0X22,0X44,0X60,
+0X90,0X12,0X82,0X60,
+0X48,0X09,0X41,0X38,
+0X08,0X7C,0XC0,0XA4,
+0X15,0X02,0X60,0X4C,
+0X09,0XC1,0X58,0X22,
+0X04,0XC0,0XB0,0X13,
+0X82,0XD0,0X5C,0X09,
+0XC0,0X31,0XE4,0X05,
+0XE0,0XC0,0X16,0X02,
+0X60,0X50,0X04,0X5B,
+0X31,0XEF,0X04,0XA0,
+0XB8,0X15,0X02,0X60,
+0X50,0X03,0X41,0X30,
+0X2C,0X05,0000,0X9C,
+0X01,0XA6,0X41,0X4C,
+0X04,0X81,0X28,0X2D,
+0X04,0X60,0X90,0X13,
+0X80,0XA8,0XCC,0X0B,
+0X01,0X78,0X25,0X05,
+0XA0,0XCC,0X13,0X02,
+0XB0,0X68,0X0B,0X81,
+0XA8,0X2D,0X05,0000,
+0XB4,0X12,0X83,0X60,
+0X0A,0X0D,0X09,0X50,
+0X26,0X04,0XC0,0X5C,
+0X11,0X80,};
+
+
+// _my_trie: Compact Trie Definition, max_sibling_jump=17 rows
+noizu_trie__compact__definition _my_trie_inner_def = {
+    .size = 77,
+    .tokens = 10,
+    .characters = 23,
+    .bit_length__character_code = 5,
+    .bit_length__sibling_relative_index = 5,
+    .bit_length__child_relative_index = 1,
+    .bit_length__child_relative_offset = 10,
+    .bit_length = 11,
+    .trie_raw = _my_trie_node_map,
+    .trie_raw_length = 106,
+    .char_map = _my_trie_chars,
+    .token_code = _my_trie_token,
+    .char_code = _my_trie_cm
+};
+struct noizu_trie_definition _my_trie = {
+    .constant = 1,
+    .type = TRIE_COMPACT_TYPE,
+    .type_definition = &_my_trie_inner_def,
+    .trie_init = noizu_trie__compact__init,
+    .trie_free = noizu_trie__compact__free,
+    .trie_validate = noizu_trie__compact__validate,
+    .trie_advance = noizu_trie__compact__advance,
+    .trie_tokenize = NULL
+}
+
+
+
+
+
+// _my_trie: Node Binary| Bits per field = 11, required = 106
+ /*
+ * _my_trie_node_map_encoding = [
+ * index 0| char:*(1), sib_jump: 0, child_jump: 1|,
+ * index 1| char:c(2), sib_jump: 8, child_jump: 1|,
+ * index 2| char:o(3), sib_jump: 0, child_jump: 1|,
+ * index 3| char:n(4), sib_jump: 0, child_jump: 1|,
+ * index 4| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 5| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 6| char:n(4), sib_jump: 0, child_jump: 1|,
+ * index 7| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 8| char:s(7), sib_jump: 0, child_jump: 0|JK_CONTENTS,
+ * index 9| char:d(8), sib_jump: 15, child_jump: 1|,
+ * index 10| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 11| char:g(9), sib_jump: 0, child_jump: 1|,
+ * index 12| char:r(10), sib_jump: 0, child_jump: 1|,
+ * index 13| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 14| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 15| char:s(7), sib_jump: 0, child_jump: 1|,
+ * index 16| char:_(11), sib_jump: 0, child_jump: 1|,
+ * index 17| char:c(2), sib_jump: 0, child_jump: 1|,
+ * index 18| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 19| char:l(12), sib_jump: 0, child_jump: 1|,
+ * index 20| char:s(7), sib_jump: 0, child_jump: 1|,
+ * index 21| char:i(13), sib_jump: 0, child_jump: 1|,
+ * index 22| char:u(14), sib_jump: 0, child_jump: 1|,
+ * index 23| char:s(7), sib_jump: 0, child_jump: 0|JV_DEGREES_CELSIUS,
+ * index 24| char:e(6), sib_jump: 7, child_jump: 1|,
+ * index 25| char:n(4), sib_jump: 0, child_jump: 1|,
+ * index 26| char:a(15), sib_jump: 0, child_jump: 1|,
+ * index 27| char:b(16), sib_jump: 0, child_jump: 1|,
+ * index 28| char:l(12), sib_jump: 0, child_jump: 1|,
+ * index 29| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 30| char:d(8), sib_jump: 0, child_jump: 0|JK_ENABLED,
+ * index 31| char:f(17), sib_jump: 13, child_jump: 1|,
+ * index 32| char:e(6), sib_jump: 7, child_jump: 1|,
+ * index 33| char:a(15), sib_jump: 0, child_jump: 1|,
+ * index 34| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 35| char:u(14), sib_jump: 0, child_jump: 1|,
+ * index 36| char:r(10), sib_jump: 0, child_jump: 1|,
+ * index 37| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 38| char:d(8), sib_jump: 0, child_jump: 0|JK_FEATURED,
+ * index 39| char:i(13), sib_jump: 0, child_jump: 1|,
+ * index 40| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 41| char:l(12), sib_jump: 0, child_jump: 1|,
+ * index 42| char:d(8), sib_jump: 0, child_jump: 1|,
+ * index 43| char:s(7), sib_jump: 0, child_jump: 0|JK_FIELDS,
+ * index 44| char:o(3), sib_jump: 9, child_jump: 1|,
+ * index 45| char:n(4), sib_jump: 2, child_jump: 1|,
+ * index 46| char:e(6), sib_jump: 0, child_jump: 0|JK_ONE,
+ * index 47| char:p(18), sib_jump: 0, child_jump: 1|,
+ * index 48| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 49| char:i(13), sib_jump: 0, child_jump: 1|,
+ * index 50| char:o(3), sib_jump: 0, child_jump: 1|,
+ * index 51| char:n(4), sib_jump: 0, child_jump: 1|,
+ * index 52| char:s(7), sib_jump: 0, child_jump: 0|JK_OPTIONS,
+ * index 53| char:r(10), sib_jump: 17, child_jump: 1|,
+ * index 54| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 55| char:l(12), sib_jump: 0, child_jump: 1|,
+ * index 56| char:a(15), sib_jump: 0, child_jump: 1|,
+ * index 57| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 58| char:i(13), sib_jump: 0, child_jump: 1|,
+ * index 59| char:v(19), sib_jump: 0, child_jump: 1|,
+ * index 60| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 61| char:_(11), sib_jump: 0, child_jump: 1|,
+ * index 62| char:h(20), sib_jump: 0, child_jump: 1|,
+ * index 63| char:u(14), sib_jump: 0, child_jump: 1|,
+ * index 64| char:m(21), sib_jump: 0, child_jump: 1|,
+ * index 65| char:i(13), sib_jump: 0, child_jump: 1|,
+ * index 66| char:d(8), sib_jump: 0, child_jump: 1|,
+ * index 67| char:i(13), sib_jump: 0, child_jump: 1|,
+ * index 68| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 69| char:y(22), sib_jump: 0, child_jump: 0|JV_RELATIVE_HUMIDITY,
+ * index 70| char:t(5), sib_jump: 0, child_jump: 1|,
+ * index 71| char:h(20), sib_jump: 4, child_jump: 1|,
+ * index 72| char:r(10), sib_jump: 0, child_jump: 1|,
+ * index 73| char:e(6), sib_jump: 0, child_jump: 1|,
+ * index 74| char:e(6), sib_jump: 0, child_jump: 0|JK_THREE,
+ * index 75| char:w(23), sib_jump: 0, child_jump: 1|,
+ * index 76| char:o(3), sib_jump: 0, child_jump: 0|JK_TWO,
+ * ];
+ */

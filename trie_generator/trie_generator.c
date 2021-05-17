@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "trie_generator.h";
+#include "trie_generator.h"
 
 
 
@@ -34,7 +34,7 @@ void insert(char* token, char* termination_code, NoizuAutoTrie* root) {
 		}
 		//printf("Termination Code = %s, %d\n", termination_code, strlen(termination_code));
 		p->termination_code = (char*)malloc((strlen(termination_code) + 1));
-		strcpy_s(p->termination_code, strlen(termination_code) + 1, termination_code);
+		if (p->termination_code) strcpy_s(p->termination_code, strlen(termination_code) + 1, termination_code);
 	}
 }
 
@@ -92,6 +92,7 @@ NoizuAutoTrie* sibling(char k, NoizuAutoTrie* parent) {
 }
 
 NoizuAutoTrie* obtain_sibling(char k, NoizuAutoTrie* parent) {
+	if (parent == NULL) return NULL;
 	if (parent->first_child) {
 		// std::cout << "obtain_sibling 1. " << k << "\n";
 		NoizuAutoTrie* p = parent->first_child;
@@ -113,6 +114,7 @@ NoizuAutoTrie* obtain_sibling(char k, NoizuAutoTrie* parent) {
 				else {
 					// std::cout << "obtain_sibling 5. " << k << " < " << p->key << "\n";
 					p->next_sibling = (NoizuAutoTrie*)malloc(sizeof(NoizuAutoTrie));
+					if (p->next_sibling == NULL) return NULL;
 					if (p->next_sibling) {
 						memset(p->next_sibling, 0, sizeof(NoizuAutoTrie));
 					}
@@ -151,9 +153,13 @@ NoizuAutoTrie* obtain_sibling(char k, NoizuAutoTrie* parent) {
 		parent->first_child = (NoizuAutoTrie*)malloc(sizeof(NoizuAutoTrie));
 		if (parent->first_child) {
 			memset(parent->first_child, 0, sizeof(NoizuAutoTrie));
+			parent->first_child->key = k;
+			return parent->first_child;
 		}
-		parent->first_child->key = k;
-		return parent->first_child;
+		else {
+			// fatal error
+			return NULL;
+		}
 	}
 }
 
@@ -209,11 +215,19 @@ void gen_prep_details(NoizuAutoTrie* n, noizu_auto_trie_compact_details* details
 			details->token_count++;
 			if (details->token_map == NULL) {
 				details->token_map = (noizu_auto_trie_compact_token_node*)malloc(sizeof(noizu_auto_trie_compact_token_node));
+				if (details->token_map == NULL) {
+					// critical error
+					return;
+				}
 				memset(details->token_map, 0, sizeof(noizu_auto_trie_compact_token_node));
 				details->token_map_tail = details->token_map;
 			}
 			else {
 				details->token_map_tail->next = (noizu_auto_trie_compact_token_node*)malloc(sizeof(noizu_auto_trie_compact_token_node));
+				if (details->token_map_tail->next == NULL) {
+					// critical error
+					return;
+				}
 				memset(details->token_map_tail->next, 0, sizeof(noizu_auto_trie_compact_token_node));
 				details->token_map_tail = details->token_map_tail->next;
 			}
@@ -351,8 +365,8 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 
 	// Token Set
-	fprintf(fptr, "\n\n// %s: SetToken\n", genVar);
-	fprintf(fptr, "TRIE_C_TOKEN %s_token(TRIE_C_TOKEN clear, noizu_trie_compact_state* state, noizu_trie_compact_definition* definition) {\n    TRIE_C_TOKEN has_token = 1;\n    TRIE_C_TOKEN token = 0;\n    TRIE_C_UNIT index = state->trie_index;\n", genVar);
+	fprintf(fptr, "\n\n// %s: GetToken\n", genVar);
+	fprintf(fptr, "TRIE_TOKEN %s_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {\n    *has_token = 1;\n    TRIE_TOKEN token = 0;\n    \n", genVar);
 	noizu_auto_trie_compact_token_node* t = details->token_map;
 	int f = 1;
 	while (t) {
@@ -365,17 +379,8 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 		}
 		t = t->next;
 	}
-	fprintf(fptr, "    else has_token = 0;\n\n");
-
-
-
-	
-	fprintf(fptr, "    if (((clear && !has_token) || has_token) && state->token != TRIE_NOT_FOUND) {\n        state->last_token = state->token;\n        state->last_token_index == state->token_index;\n    }\n");
-	fprintf(fptr, "    if (clear && !has_token) {\n        state->token = 0;\n        state->token_index = 0;\n    }\n");
-
-	fprintf(fptr, "    if (clear && !has_token) {\n        state->token = 0;\n        state->token_index = 0;\n    }\n");
-	fprintf(fptr, "    if (has_token) {\n    state->token = token;\n    state->token_index = state->trie_index;\n    }\n");
-	fprintf(fptr, "    return (has_token ? TRIE_PARTIAL_MATCH : TRIE_NOT_FOUND);\n}\n\n");
+	fprintf(fptr, "    else *has_token = 0;\n\n");
+	fprintf(fptr, "    return token;\n}\n\n");
 
 	// Nodes
 	unsigned int field_width = log2(details->char_count) + log2(details->largest_sibling_jump) + 1; // log2(details->largest_child_jump);
@@ -442,7 +447,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 
 	fprintf(fptr, "\n\n// %s: Compact Trie Definition, max_sibling_jump=%d rows\n", genVar, details->largest_sibling_jump);
-	fprintf(fptr, "noizu_trie_compact_definition %s = {\n", genVar);
+	fprintf(fptr, "noizu_trie__compact__definition %s_inner_def = {\n", genVar);
 	fprintf(fptr, "    .size = %d,\n", details->node_count);
 	fprintf(fptr, "    .tokens = %d,\n", details->token_count);
 	fprintf(fptr, "    .characters = %d,\n", details->char_count);
@@ -457,9 +462,21 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 	
 	fprintf(fptr, "    .char_map = %s_chars,\n", genVar);
-	fprintf(fptr, "    .set_node_token = %s_token,\n", genVar);
+	fprintf(fptr, "    .token_code = %s_token,\n", genVar);
 	fprintf(fptr, "    .char_code = %s_cm\n", genVar);
 	fprintf(fptr, "};\n");
+
+
+	fprintf(fptr, "struct noizu_trie_definition %s = {\n", genVar);
+	fprintf(fptr, "    .constant = 1,\n");
+	fprintf(fptr, "    .type = TRIE_COMPACT_TYPE,\n");
+	fprintf(fptr, "    .type_definition = &%s_inner_def,\n", genVar);
+	fprintf(fptr, "    .trie_init = noizu_trie__compact__init,\n");
+	fprintf(fptr, "    .trie_free = noizu_trie__compact__free,\n");
+	fprintf(fptr, "    .trie_validate = noizu_trie__compact__validate,\n");
+	fprintf(fptr, "    .trie_advance = noizu_trie__compact__advance,\n");
+	fprintf(fptr, "    .trie_tokenize = NULL\n");
+	fprintf(fptr, "}\n\n");
 
 
 

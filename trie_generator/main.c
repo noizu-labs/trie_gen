@@ -1,15 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "trie_generator.h";
+#include "trie_generator.h"
 
 int main(int argc, char *argv[])
 {
 	char* inputFile = argv[1];
 	char defaultOutputFile[] = "import/generated.gen";
-	char* outputFile = (argc > 2) ? argv[2] : &defaultOutputFile;
+	char* outputFile = (argc > 2) ? argv[2] : defaultOutputFile;
 	char defaultOutputVar[] = "noizu_trie";
-	char* outputVar = (argc > 3) ? argv[3] : &defaultOutputFile;
+	char* outputVar = (argc > 3) ? argv[3] : defaultOutputFile;
 	int structMode = 0;
 	int compactMode = 0;
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	//compactMode = 1;
+	compactMode = 1;
 	
 
 	//---------------------------------
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 				gen_array_format(outputVar, root, fptr);
 			}
 			fclose(fptr);
-			printf("\n\n[Complete]\n\n\n", outputFile);
+			printf("\n\n[Complete: %s]\n\n\n", outputFile);
 			return 0;
 		}
 		else {

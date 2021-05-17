@@ -29,7 +29,7 @@
  * @brief trie node structure. Static trie encoded as an array of structs or pointer to allocation of structs.
  */
 typedef struct noizu_trie_s{
-	char key;
+	TRIE_CHAR_CODE key;
 	TRIE_S_UNIT next_sibling;
 	TRIE_S_UNIT first_child;
 	TRIE_S_TOKEN termination_code;
@@ -41,27 +41,15 @@ typedef struct noizu_trie__struct__definition {
 } noizu_trie_array_definition;
 
 
-typedef struct noizu_trie__struct__state {
-	TRIE_S_UNIT position;
-	TRIE_S_UNIT token_index;
-	TRIE_S_UNIT last_token_index;
-} noizu_trie__array__state;
-
-
-
 /*!
  * @brief advance position through trie structure by find sibling or direct child matching index node. Return TRIE_NOT_FOUND indicator if current node not found or matching entry exists.
  * @deprecated
  */
 TRIE_S_UNIT noizu_trie_s_advance(char k, TRIE_S_UNIT current_node, noizu_trie_s* source);
 
-
 TRIE_TOKEN noizu_trie__struct__init(offset_buffer* req, struct noizu_trie_definition* definition, struct noizu_trie_options options, struct noizu_trie_state* out);
-TRIE_TOKEN noizu_trie__struct__validate(struct noizu_trie_state* out, struct noizu_trie_definition* definition);
+TRIE_TOKEN noizu_trie__struct__free(struct noizu_trie_state* state, struct noizu_trie_definition* definition, TRIE_TOKEN mode);
+TRIE_TOKEN noizu_trie__struct__validate(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
 TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
-TRIE_TOKEN noizu_trie__struct__tokenize(struct noizu_trie_state* state, struct noizu_trie_definition* definition, tokenizer_sentinel* sentinel);
-
-
-
 
 #endif

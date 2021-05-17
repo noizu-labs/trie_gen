@@ -45,6 +45,9 @@
     <ClCompile Include="trie_generator.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="import\noitu_trie.c">
+      <Filter>import</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="sample.txt">
@@ -69,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="trie_generator.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="import\noizu_trie.h">
+      <Filter>import</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

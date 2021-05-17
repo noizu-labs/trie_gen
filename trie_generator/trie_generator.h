@@ -125,6 +125,8 @@ NoizuAutoTrie* gen_prep_siblings_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* in
  */
 NoizuAutoTrie* gen_prep_children_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* index);
 
+NoizuAutoTrie* gen_prep_depth_first(NoizuAutoTrie* root);
+
 
 //---------------------------------------------------
 // Generate

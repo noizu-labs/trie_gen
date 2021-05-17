@@ -10,6 +10,14 @@
 #define __NOIZU_TRIE_H__
 
 #ifdef GENERIC_MODE 
+
+#ifdef UNITY_TEST
+#include "unity_memory.h"
+#else
+#include <corecrt_malloc.h>
+#include <vcruntime_string.h>
+#endif
+
 typedef unsigned char       uint8_t;
 typedef signed char         sint8_t;
 typedef signed char         int8_t;
@@ -39,11 +47,43 @@ typedef struct offset_buffer {
 	uint32_t buffer_pos; // Current starting position in buffer.
 } offset_buffer;
 
+#define os_sprintf sprintf
+#define os_printf printf
+#define os_printf_plus printf
+
+#define LOG_ERROR(format, ...) os_printf("[LOG ERROR]@%s:%d: " format "\r\n", __func__, __LINE__, ##__VA_ARGS__);
+#define LOG_WARN(format, ...) os_printf("[LOG WARN]@%s:%d: " format "\r\n", __func__, __LINE__, ##__VA_ARGS__);
+
+#define os_free free
+#define os_malloc malloc
+#define os_calloc(s) calloc(s, 1)
+#define os_realloc realloc
+#define os_zalloc(s) calloc(s, 1)
+
+#define os_memcmp memcmp
+#define os_memcpy memcpy
+#define os_memmove memmove
+#define os_memset memset
+#define os_strcat strcat
+#define os_strchr strchr
+#define os_strcmp strcmp
+#define os_strcpy strcpy
+#define os_strlen strlen
+#define os_strncmp strncmp
+#define os_strncpy strncpy
+#define os_strstr strstr
+#else
+#include "osapi.h"
+#include "c_types.h"
+#include "mem.h"
+#include "ip_addr.h"
+#include "httpc.h"
+typedef request_args_t offset_buffer;
 #endif
 
 // Unit Types
-#define TRIE_TOKEN uint16_t
-#define TRIE_STATE uint8_t
+#define TRIE_TOKEN uint32_t
+#define TRIE_STATE uint32_t
 #define TRIE_CHAR_CODE uint8_t
 
 // Hanlders
@@ -62,32 +102,60 @@ typedef struct offset_buffer {
 #define TRIE_PARTIAL_SENTINEL_EXIT 4
 
 
-#define TRIE_EXIT 0x10
-#define TRIE_END_INPUT_EXIT (TRIE_EXIT | 0x01)
-#define TRIE_END_PARSE_EXIT (TRIE_EXIT | 0x02)
-//! internal error state
-#define TRIE_ABNORMAL_EXIT (TRIE_EXIT | 0x03)
-#define TRIE_OVERFLOW_EXIT (TRIE_EXIT | 0x04)
+// TRIE RESPONSE CODES - major
+#define TRIE_UNKNOWN 0x0000
+#define TRIE_EXIT 0x1000
+#define TRIE_ERROR 0x2000
+#define TRIE_ARGUMENT_ERROR (TRIE_ERROR | 0x4000)
+#define TRIE_SUCCESS 0x8000
+
+// TRIE RESPONSE CODES - EXIT
+#define TRIE_RETURN_EXIT (TRIE_EXIT | 0x0200)
+#define TRIE_VALID_EXIT (TRIE_EXIT | TRIE_SUCCESS | 0x0400)
+#define TRIE_ABNORMAL_EXIT (TRIE_EXIT | 0x0800)
+#define TRIE_END_INPUT_EXIT (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |  0x0001)
+#define TRIE_END_PARSE_EXIT (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |  0x0002)
+#define TRIE_CONTINUE (TRIE_VALID_EXIT | 0x0003)
+#define TRIE_OVERFLOW_EXIT (TRIE_ABNORMAL_EXIT | TRIE_RETURN_EXIT | 0x0004)
+#define TRIE_BUFFER_END (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |0x0005)
+#define TRIE_BUFFER_END_ON_SKIP (TRIE_ABNORMAL_EXIT | TRIE_RETURN_EXIT |0x0006)
+
+// ERRORS
+#define TRIE_ALLOC_FAIL (TRIE_ERROR | 0x0001)
+#define TRIE_DEFINITION_ERROR (TRIE_ERROR | 0x0002)
+#define TRIE_ACCESS_ERROR (TRIE_ERROR | 0x0003)
+#define TRIE_ARRAY_ACCESS_ERROR TRIE_ACCESS_ERROR
+#define TRIE_STRUCT_ACCESS_ERROR TRIE_ACCESS_ERROR
+
+// Argument Errors
+#define TRIE_ARGUMENT_ERROR__INVALID_TYPE (TRIE_ARGUMENT_ERROR | 0x0100)
+#define TRIE_ARGUMENT_ERROR__INVALID_TYPE_STATE (TRIE_ARGUMENT_ERROR__INVALID_TYPE | 0x0001)
+#define TRIE_ARGUMENT_ERROR__INVALID_TYPE_DEFINITION (TRIE_ARGUMENT_ERROR__INVALID_TYPE | 0x0002)
+
+#define TRIE_ARGUMENT_ERROR__NULL (TRIE_ARGUMENT_ERROR | 0x0200)
+#define TRIE_ARGUMENT_ERROR__NULL_STATE (TRIE_ARGUMENT_ERROR__NULL | 0x0003)
+#define TRIE_ARGUMENT_ERROR__NULL_DEFINITION (TRIE_ARGUMENT_ERROR__NULL | 0x0004)
+#define TRIE_ARGUMENT_ERROR__NULL_TYPE_STATE (TRIE_ARGUMENT_ERROR__NULL | 0x0005)
+#define TRIE_ARGUMENT_ERROR__NULL_TYPE_DEFINITION (TRIE_ARGUMENT_ERROR__NULL | 0x0006)
+
+#define TRIE_ARGUMENT_ERROR__TYPE (TRIE_ARGUMENT_ERROR | 0x0400)
+#define TRIE_ARGUMENT_ERROR__TYPE_MISMATCH (TRIE_ARGUMENT_ERROR__TYPE | 0x0007)
+#define TRIE_ARGUMENT_ERROR__TYPE_INIT_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x0008)
+#define TRIE_ARGUMENT_ERROR__TYPE_VALIDATE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x0009)
+#define TRIE_ARGUMENT_ERROR__TYPE_ADVANCE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x000A)
+#define TRIE_ARGUMENT_ERROR__TYPE_TOKENIZE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x000B)
+#define TRIE_ARGUMENT_ERROR__TYPE_FREE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x000C)
 
 
-#define TRIE_VALID 0x20
-#define TRIE_CONTINUE (TRIE_VALID | 0x01)
-#define TRIE_BUFFER_END (TRIE_VALID | 0x02)
-#define TRIE_BUFFER_END_ON_SKIP (TRIE_VALID | 0x03)
-
-//! Arguments Invalid
-#define TRIE_ERROR 0x40
-#define TRIE_ALLOC_FAIL (TRIE_ERROR | 0x01)
-#define TRIE_ARRAY_ACCESS_ERROR (TRIE_ERROR | 0x02)
-#define TRIE_STRUCT_ACCESS_ERROR TRIE_ARRAY_ACCESS_ERROR
-#define TRIE_DEFINITION_ERROR (TRIE_ERROR | 0x03)
-#define TRIE_ARGUMENT_ERROR (TRIE_ERROR | 0x04)
+#define TRIE_ERROR_DEALLOC_CONSTANT_DEFINITION (TRIE_ERROR | 0x0010)
 
 
 
+// TRIE SUCCESS
+#define TRIE_INITIALIZED (TRIE_SUCCESS | 0x0001)
 
-#define TRIE_SUCCESS 0x80
-#define TRIE_INITIALIZED (TRIE_SUCCESS | 0x01)
+
+
 
 /*!
  * @brief string not found special index value.
@@ -96,8 +164,13 @@ typedef struct offset_buffer {
  */
 #define TRIE_NOT_FOUND 0
 
+#define TRIE_FREE_STATE 0x11
+#define TRIE_FREE_STATE__INNER 0x01
 
 
+#define TRIE_FREE_DEFINITION 0x22
+#define TRIE_FREE_DEFINITION__INNER 0x02
+#define TRIE_FREE_DEFINITION_AND_STATE (TRIE_FREE_STATE | TRIE_FREE_DEFINITION)
 
 // Forward Declaration
 struct noizu_trie_state;
@@ -109,18 +182,23 @@ typedef TRIE_TOKEN(*tokenizer_sentinel)(TRIE_TOKEN advance_flag, struct noizu_tr
 
 // Per Implementation callbacks
 typedef TRIE_TOKEN(*tokenizer_init)(offset_buffer* req, struct noizu_trie_definition* definition, struct noizu_trie_options options, struct noizu_trie_state* out);
+typedef TRIE_TOKEN(*tokenizer_free)(struct noizu_trie_state* out, struct noizu_trie_definition* definition, TRIE_TOKEN mode);
 typedef TRIE_TOKEN(*tokenizer_validate)(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
 typedef TRIE_TOKEN(*tokenizer_advance)(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
-typedef TRIE_TOKEN(*tokenizer_tokenize)(tokenizer_sentinel* sentinel, struct noizu_trie_state*, struct noizu_trie_definition*);
+typedef TRIE_TOKEN(*tokenizer_tokenize)(struct noizu_trie_state*, struct noizu_trie_definition*, tokenizer_sentinel sentinel);
 
 /*!
 * @brief contains type specific trie implementation and handler methods.
 */
 typedef struct noizu_trie_definition {
-	uint8_t type;
+	uint8_t constant : 1;
+	uint8_t type: 7;
+	
 	void* type_definition;
 
+	
 	tokenizer_init trie_init;
+	tokenizer_free trie_free;
 	tokenizer_validate trie_validate;
 	tokenizer_advance trie_advance;
 	tokenizer_tokenize trie_tokenize;
@@ -130,6 +208,7 @@ typedef struct noizu_trie_definition {
  * @brief trie config settings.
  */
 typedef struct noizu_trie_options {
+	TRIE_CHAR_CODE deliminator;
 	uint8_t keep_last_token : 1;
 	uint8_t end_of_buffer_token : 1;
 } noizu_trie_options;
@@ -154,6 +233,11 @@ typedef struct noizu_trie_state {
 	TRIE_CHAR_CODE terminator; //!< end char / last char.
 	unsigned char initialized;
 
+	uint32_t position;
+	uint32_t token_index;
+	uint32_t last_token_index;
+
+
 	// Type specific state.
 	void* type_state;
 
@@ -165,6 +249,8 @@ typedef struct noizu_trie_state {
  * Init trie state for processing.
  */
 TRIE_TOKEN noizu_trie__init(offset_buffer *req, struct noizu_trie_definition* definition, struct noizu_trie_options options, struct noizu_trie_state* out);
+TRIE_TOKEN noizu_trie__free(struct noizu_trie_state* state, struct noizu_trie_definition* definition, TRIE_TOKEN mode);
+
 
 /*!
  * Validate definition and state
@@ -179,6 +265,6 @@ TRIE_TOKEN noizu_trie__advance(struct noizu_trie_state* state, struct noizu_trie
 /*!
  * Tokenize input stream.
  */
-TRIE_TOKEN noizu_trie__tokenize(struct noizu_trie_state* state, struct noizu_trie_definition* definition, tokenizer_sentinel* sentinel);
+TRIE_TOKEN noizu_trie__tokenize(struct noizu_trie_state* state, struct noizu_trie_definition* definition, tokenizer_sentinel sentinel);
 
 #endif
