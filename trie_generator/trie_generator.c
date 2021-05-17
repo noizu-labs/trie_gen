@@ -333,12 +333,12 @@ void gen_array_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
 
 void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_compact_details* details, FILE* fptr) {
 	unsigned int i;
-	fprintf(fptr, "\n\n#include \"noizu_trie_compact.h\"\n\n");
+	fprintf(fptr, "\n\n#include \"noizu_trie_c.h\"\n\n");
 	// Output Meta Details
 
 	// Char Map
 	fprintf(fptr, "\n\n// %s: CharMap\n", genVar);
-	fprintf(fptr, "TRIE_C_CHAR %s_cm(TRIE_C_CHAR c) {\n", genVar);
+	fprintf(fptr, "TRIE_CHAR_CODE %s_cm(TRIE_CHAR_CODE c) {\n", genVar);
 	for (i = 0; i < details->char_count; i++) {
 		unsigned int c = details->char_map[i];
 		if (i == 0) {
@@ -351,7 +351,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	}
 	fprintf(fptr, "    return 0;\n}\n\n");
 
-	fprintf(fptr, "TRIE_C_CHAR %s_chars[] = {", genVar);
+	fprintf(fptr, "TRIE_CHAR_CODE %s_chars[] = {", genVar);
 	for (i = 0; i < details->char_count; i++) {
 		unsigned int c = details->char_map[i];
 		if (i == 0) {
@@ -447,7 +447,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 
 	fprintf(fptr, "\n\n// %s: Compact Trie Definition, max_sibling_jump=%d rows\n", genVar, details->largest_sibling_jump);
-	fprintf(fptr, "noizu_trie__compact__definition %s_inner_def = {\n", genVar);
+	fprintf(fptr, "struct noizu_trie__compact__definition %s_inner_def = {\n", genVar);
 	fprintf(fptr, "    .size = %d,\n", details->node_count);
 	fprintf(fptr, "    .tokens = %d,\n", details->token_count);
 	fprintf(fptr, "    .characters = %d,\n", details->char_count);
@@ -476,7 +476,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	fprintf(fptr, "    .trie_validate = noizu_trie__compact__validate,\n");
 	fprintf(fptr, "    .trie_advance = noizu_trie__compact__advance,\n");
 	fprintf(fptr, "    .trie_tokenize = NULL\n");
-	fprintf(fptr, "}\n\n");
+	fprintf(fptr, "};\n\n");
 
 
 

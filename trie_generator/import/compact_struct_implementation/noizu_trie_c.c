@@ -131,7 +131,7 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 
 	// Update State
 	state->position = next_index;
-	if (next_index == TRIE_NOT_FOUND) {
+	if (advance_code == TRIE_NOT_FOUND) {
 		state->terminator = c;
 		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.deliminator) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
 		else {
@@ -154,7 +154,7 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 			state->last_token = state->token;
 			state->last_token_index = state->token_index;
 		}		
-		state->token = compact_trie->token_code(last_index, definition, &has_token);
+		state->token = compact_trie->token_code(next_index, definition, &has_token);
 		state->token_index = next_index;
 	}
 
@@ -166,9 +166,9 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 	else {
 		// check for token if end of buffer and not already checked due to keep_last_token flow.
 		if (state->options.end_of_buffer_token && !state->options.keep_last_token) {
-			state->token = compact_trie->token_code(last_index, definition, &has_token);
-			state->token_index = next_index;
-			state->match_type == state->token ? TRIE_LAST_MATCH : TRIE_NO_MATCH;
+			state->token = compact_trie->token_code(next_index, definition, &has_token);
+			state->token_index = has_token ? next_index : 0;
+			state->match_type = has_token ? TRIE_LAST_MATCH : TRIE_NO_MATCH;
 		}
 		state->skip_next = 1;
 		return TRIE_BUFFER_END;

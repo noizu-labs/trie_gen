@@ -5,6 +5,11 @@
 
 int main(int argc, char *argv[])
 {
+	// Temp (until unit test target added)
+	char* o[] = { 0 };
+	suite(0, o);
+
+
 	char* inputFile = argv[1];
 	char defaultOutputFile[] = "import/generated.gen";
 	char* outputFile = (argc > 2) ? argv[2] : defaultOutputFile;

@@ -28,6 +28,27 @@
     <Filter Include="import\compact_struct_implementation">
       <UniqueIdentifier>{f7ed7c47-6855-4ed4-8cdb-a439988afc70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test Suite">
+      <UniqueIdentifier>{dd66e9d2-005d-4611-aaec-60b6027c0872}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_array">
+      <UniqueIdentifier>{ec696b23-c00f-4084-9a60-697ffdf9388a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_compact">
+      <UniqueIdentifier>{0676ee59-f85b-4c75-81c8-743473478e9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_struct">
+      <UniqueIdentifier>{fe7334ab-9c89-4542-973e-9465c14a8021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unity">
+      <UniqueIdentifier>{50f0cb0f-83b3-4a66-8ab1-7ae5cc1eb2ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unity\memory">
+      <UniqueIdentifier>{e8770e50-8b63-42cf-85cd-d114d381d9a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unity\fixtures">
+      <UniqueIdentifier>{3e83f6bf-0d14-428b-aa66-25e4fe27f9e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -47,6 +68,36 @@
     </ClCompile>
     <ClCompile Include="import\noitu_trie.c">
       <Filter>import</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\suite.c">
+      <Filter>Test Suite</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\TestTrieArray_Runner.c">
+      <Filter>Test Suite</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\TestTrieCompact_Runner.c">
+      <Filter>Test Suite</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\TestTrieStruct_Runner.c">
+      <Filter>Test Suite</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\trie_struct\TestTrieStruct.c">
+      <Filter>Test Suite\trie_struct</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\trie_compact\TestTrieCompact.c">
+      <Filter>Test Suite\trie_compact</Filter>
+    </ClCompile>
+    <ClCompile Include="Test Suite\trie_array\TestTrieArray.c">
+      <Filter>Test Suite\trie_array</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\src\unity.c">
+      <Filter>Unity</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\extras\fixture\src\unity_fixture.c">
+      <Filter>Unity\fixtures</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\extras\memory\src\unity_memory.c">
+      <Filter>Unity\memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +126,21 @@
     </ClInclude>
     <ClInclude Include="import\noizu_trie.h">
       <Filter>import</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\src\unity.h">
+      <Filter>Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\src\unity_internals.h">
+      <Filter>Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\extras\fixture\src\unity_fixture.h">
+      <Filter>Unity\fixtures</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\extras\fixture\src\unity_fixture_internals.h">
+      <Filter>Unity\fixtures</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\extras\memory\src\unity_memory.h">
+      <Filter>Unity\memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
