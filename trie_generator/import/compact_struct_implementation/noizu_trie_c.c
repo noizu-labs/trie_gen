@@ -96,7 +96,9 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 	uint32_t last_index = state->position;
 	uint32_t next_index = last_index;
 
-	if (!(state->position == TRIE_NOT_FOUND && state->initialized)) {
+	
+		
+	if ((!(state->options.hard_delim && state->options.deliminator == c)) && !(state->position == TRIE_NOT_FOUND && state->initialized)) {
 		TRIE_CHAR_CODE scan_for = ((struct noizu_trie__compact__definition*)definition->type_definition)->char_code(c);
 		if (scan_for != TRIE_NOT_FOUND) {
 			// 1. Advance to child if TRIE_INDEX != TRIE_NOT_FOUND or uninitilized.
@@ -115,7 +117,10 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 				if (compact_trie->char_map[raw_char - 1] < c) {
 					advance = (uint16_t)EXTRACT_SIB_JUMP(next_index, compact_trie);
 				}
-				else break;
+				else {
+					next_index = 0;
+					break;
+				}
 			}
 		}
 	}
@@ -145,7 +150,10 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 			}
 			else state->match_type = TRIE_NO_MATCH;
 		}
-		return (state->terminator == '\0' || state->terminator == state->options.deliminator) ? TRIE_END_INPUT_EXIT : TRIE_END_PARSE_EXIT;
+
+		if (state->terminator == '\0') return TRIE_END_INPUT_EXIT;
+		else if (state->terminator == state->options.deliminator) return TRIE_DELIM_EXIT;
+		else return TRIE_END_PARSE_EXIT;
 	}
 
 	// Track token matches if option set

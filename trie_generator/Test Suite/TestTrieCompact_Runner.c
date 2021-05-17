@@ -22,5 +22,13 @@ TEST_GROUP_RUNNER(TrieCompact)
 	RUN_TEST_CASE(TrieCompact, UnitTest_BuffEarlyEnd_KL0_EB1);
 	RUN_TEST_CASE(TrieCompact, UnitTest_BuffEarlyEnd_KL0_EB0);
 
+	RUN_TEST_CASE(TrieCompact, UnitTest_Sentinel_On);
+	RUN_TEST_CASE(TrieCompact, UnitTest_Sentinel_Off);
+
+	RUN_TEST_CASE(TrieCompact, UnitTest_RunOn);		
+	RUN_TEST_CASE(TrieCompact, UnitTest_HardDelim_On);
+	RUN_TEST_CASE(TrieCompact, UnitTest_HardDelim_Off);
+
 	
+
 }
