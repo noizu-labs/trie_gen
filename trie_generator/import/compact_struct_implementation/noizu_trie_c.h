@@ -9,41 +9,7 @@
 #ifndef __NOIZU_TRIE_C_H__
 #define __NOIZU_TRIE_C_H__
 
-
-#ifndef TRIE_NO_MATCH 
-#define TRIE_NO_MATCH 0
-#endif
-
-#ifndef TRIE_MATCH 
-#define TRIE_MATCH 1
-#endif
-
-
-#ifndef TRIE_PARTIAL_MATCH 
-//! indicates a partial match with input string going past entries in trie.  e.g. searched for apple but no trie entry after 'app' was found.
-#define TRIE_PARTIAL_MATCH 2
-#endif
-
-#ifndef TRIE_LAST_MATCH 
-//! indicates a partial match with input string going past entries in trie.  e.g. searched for apple but no trie entry after 'appl' was found.
-#define TRIE_LAST_MATCH 3
-#endif
-
-
-
-#ifndef TRIE_PARTIAL_SENTINEL_EXIT
-//! indicate early exit due to sentinel
-#define TRIE_PARTIAL_SENTINEL_EXIT 4
-#endif
-
-#ifndef TRIE_NOT_FOUND
-/*!
- * @brief string not found special index value.
- * This special trie index functions as termination well to halt processing of non matched input strings.
- * In generated tries trie head begin at index position (1) with a non parsed special token value. (*) by default.
- */
-#define TRIE_NOT_FOUND 0
-#endif
+#include "noizu_trie.h"
 
 #ifndef TRIE_C_CHAR
 /*!
@@ -56,21 +22,21 @@
  /*!
   * @brief trie list index unit
   */
-#define TRIE_C_UNIT unsigned int
+#define TRIE_C_UNIT TRIE_TOKEN
 #endif
 
 #ifndef TRIE_C_TOKEN
 /*!
  * @breif trie token unit
  */
-#define TRIE_C_TOKEN unsigned int
+#define TRIE_C_TOKEN TRIE_TOKEN
 #endif
 
 #ifndef TRIE_C_BIT_POS
  /*!
   * @brief trie list index unit
   */
-#define TRIE_C_BIT_POS unsigned long
+#define TRIE_C_BIT_POS uint32_t
 #endif
 
 
@@ -115,7 +81,7 @@ typedef struct noizu_trie_compact_definition {
 	TRIE_C_UNIT bit_length__child_relative_offset; //!< to avoid calculations., just char + sib length
 	TRIE_C_UNIT bit_length__child_relative_index; //!< number of bits used to encode distance (in nodes) to next child
 	TRIE_C_UNIT* trie_raw; //!< binary stream of tokens in form of  {char_bits, next_sibling_bits, next_child_bits}
-	TRIE_C_UNIT* trie_raw_length; //!< total bytes to avoid overruns.
+	TRIE_C_UNIT trie_raw_length; //!< total bytes to avoid overruns.
 	TRIE_C_CHAR* char_map; //!< character look up table, the trie for "Hello World" for example would have a char map of ['H', 'e', 'l', 'o', 'W', 'r', 'd'] and would use 3 bits to encode each character
 	noizu_trie_set_token set_node_token; //!< map node index to token function, 
 	noizu_trie_c_token_code char_code;
@@ -154,6 +120,14 @@ TRIE_C_TOKEN noizu_trie_compact_advance(TRIE_C_CHAR k, noizu_trie_compact_state*
  * @brief tokenize input string, parses full string, if walks past trie table record terminator character and previous token so caller can check if terminal valid for end of token.  e.g.  "apple+" when we want to match on apple, tokenizer returns token for apple and indicates we excited on '+'
  */
 TRIE_C_TOKEN noizu_trie_compact_tokenize(TRIE_C_CHAR* input, TRIE_C_CHAR track_last_token, noizu_trie_c_tokenizer_sentinel* sentinel, noizu_trie_compact_state* state, noizu_trie_compact_definition* trie);
+
+
+TRIE_TOKEN noizu_trie__compact__init(offset_buffer* req, struct noizu_trie_definition* definition, struct noizu_trie_options options, struct noizu_trie_state* out);
+TRIE_TOKEN noizu_trie__compact__validate(struct noizu_trie_state* out, struct noizu_trie_definition* definition);
+TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
+TRIE_TOKEN noizu_trie__compact__tokenize(struct noizu_trie_state* state, struct noizu_trie_definition* definition, tokenizer_sentinel* sentinel);
+
+
 
 
 #endif

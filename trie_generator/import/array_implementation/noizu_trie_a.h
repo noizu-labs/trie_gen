@@ -10,16 +10,7 @@
 #ifndef __NOIZU_TRIE_A_H__
 #define __NOIZU_TRIE_A_H__
 
-#ifndef TRIE_NOT_FOUND
-/*!
- * @brief string not found special index value.
- * This special trie index functions as termination well to halt processing of non matched input strings.
- * In generated tries trie head begin at index position (1) with a non parsed special token value. (*) by default.
- * @author Keith Brings
- * @repo github.com/noizu/trie_gen
- */
-#define TRIE_NOT_FOUND 0
-#endif
+#include "noizu_trie.h"
 
 /*!
  * @brief Array Index holding Trie Node's Character Code.
@@ -55,9 +46,9 @@
  * @author Keith Brings
  * @repo github.com/noizu/trie_gen
  */
-#define TRIE_A_UNIT int
+#define TRIE_A_UNIT uint8_t
 #define TRIE_A_UNIT_SIGNED 1
-#define TRIE_A_UNIT_BITS 32
+#define TRIE_A_UNIT_BITS 8
 #endif
 
 /*!
@@ -67,10 +58,30 @@
  */
 typedef TRIE_A_UNIT noizu_trie_a[4];
 
+typedef struct noizu_trie__array__definition {
+	noizu_trie_a* trie;
+	TRIE_A_UNIT trie_array_length;
+} noizu_trie_array_definition;
+
+
+typedef struct noizu_trie__array__state {
+	TRIE_A_UNIT position;
+	TRIE_A_UNIT token_index;
+	TRIE_A_UNIT last_token_index;
+} noizu_trie__array__state;
+
 /*!
  * @brief advance position through trie structure by find sibling or direct child matching index node. Return TRIE_NOT_FOUND indicator if current node not found or matching entry exists.
  * @author Keith Brings
  * @repo github.com/noizu/trie_gen
  */
 TRIE_A_UNIT noizu_trie_a_advance(char key, TRIE_A_UNIT position, noizu_trie_a source[]);
+
+
+TRIE_TOKEN noizu_trie__array__init(offset_buffer* req, struct noizu_trie_definition* definition, struct noizu_trie_options options, struct noizu_trie_state* out);
+TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
+TRIE_TOKEN noizu_trie__array__tokenize(struct noizu_trie_state* state, struct noizu_trie_definition* definition, tokenizer_sentinel* sentinel);
+TRIE_TOKEN noizu_trie__validate(struct noizu_trie_state* state, struct noizu_trie_definition* definition);
+
+
 #endif
