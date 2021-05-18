@@ -10,7 +10,7 @@
 #ifndef __NOIZU_TRIE_A_H__
 #define __NOIZU_TRIE_A_H__
 
-#include "noizu_trie.h"
+#include "..\noizu_trie.h"
 
 /*!
  * @brief Array Index holding Trie Node's Character Code.
@@ -60,7 +60,7 @@ typedef TRIE_A_UNIT noizu_trie_a[4];
 
 typedef struct noizu_trie__array__definition {
 	noizu_trie_a* trie;
-	TRIE_A_UNIT trie_array_length;
+	TRIE_A_UNIT trie_length;
 } noizu_trie_array_definition;
 
 

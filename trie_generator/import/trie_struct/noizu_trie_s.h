@@ -10,7 +10,7 @@
 #define __NOIZU_TRIE_S_H__
 
 
-#include "noizu_trie.h"
+#include "../noizu_trie.h"
 
 #ifndef TRIE_S_UNIT
  /*!
@@ -37,7 +37,7 @@ typedef struct noizu_trie_s{
 
 typedef struct noizu_trie__struct__definition {
 	noizu_trie_s* trie;
-	TRIE_S_UNIT trie_struct_length;
+	TRIE_S_UNIT trie_length;
 } noizu_trie_array_definition;
 
 

@@ -318,8 +318,9 @@ NoizuAutoTrie* gen_prep_siblings_depth_first(NoizuAutoTrie* n, NoizuAutoTrie* in
 
 
 void gen_array_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
-	fprintf(fptr, "\n\n#include \"noizu_trie_a.h\"\n\nconst noizu_trie_a %s[] = {\n", genVar);
+	fprintf(fptr, "\n\n#include \"noizu_trie.h\"\n#include \"noizu_trie_a.h\"\n\nconst noizu_trie_a __internal_%s_arr[] = {\n", genVar);
 	fprintf(fptr, "\t{0, 0, 0, 0}");
+	unsigned int tally = 1;
 	while (index) {
 		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
 		unsigned int child = index->first_child ? index->first_child->index : 0;
@@ -327,18 +328,42 @@ void gen_array_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
 		fprintf(fptr, ",\n\t{'%C', %u, %u, %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
 		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
 		index = index->index_route;
+		tally++;
 	}
-	fprintf(fptr, "\n};\n");
+	fprintf(fptr, "\n};\n\n\n\n");
+
+
+	fprintf(fptr, "struct noizu_trie__array__definition __internal_%s_inner_def = {\n", genVar);
+	fprintf(fptr, "    .trie = __internal_%s_arr,\n", genVar);
+	fprintf(fptr, "    .trie_length = %d,\n", tally);
+	fprintf(fptr, "};\n\n\n\n");
+
+
+	fprintf(fptr, "struct noizu_trie_definition %s = {\n", genVar);
+	fprintf(fptr, "    .constant = 1,\n");
+	fprintf(fptr, "    .type = TRIE_ARRAY_TYPE,\n");
+	fprintf(fptr, "    .type_definition = &__internal_%s_inner_def,\n", genVar);
+	fprintf(fptr, "    .trie_init = noizu_trie__array__init,\n");
+	fprintf(fptr, "    .trie_free = noizu_trie__array__free,\n");
+	fprintf(fptr, "    .trie_validate = noizu_trie__array__validate,\n");
+	fprintf(fptr, "    .trie_advance = noizu_trie__array__advance,\n");
+	fprintf(fptr, "    .trie_tokenize = NULL\n");
+	fprintf(fptr, "};\n\n\n\n");
+
+
+
+
+
 }
 
 void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_compact_details* details, FILE* fptr) {
 	unsigned int i;
-	fprintf(fptr, "\n\n#include \"noizu_trie_c.h\"\n\n");
+	fprintf(fptr, "\n\n#include \"noizu_trie.h\"\n#include \"noizu_trie_c.h\"\n\n");
 	// Output Meta Details
 
 	// Char Map
 	fprintf(fptr, "\n\n// %s: CharMap\n", genVar);
-	fprintf(fptr, "TRIE_CHAR_CODE %s_cm(TRIE_CHAR_CODE c) {\n", genVar);
+	fprintf(fptr, "TRIE_CHAR_CODE __internal_%s_cm(TRIE_CHAR_CODE c) {\n", genVar);
 	for (i = 0; i < details->char_count; i++) {
 		unsigned int c = details->char_map[i];
 		if (i == 0) {
@@ -351,7 +376,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	}
 	fprintf(fptr, "    return 0;\n}\n\n");
 
-	fprintf(fptr, "TRIE_CHAR_CODE %s_chars[] = {", genVar);
+	fprintf(fptr, "TRIE_CHAR_CODE __internal_%s_chars[] = {", genVar);
 	for (i = 0; i < details->char_count; i++) {
 		unsigned int c = details->char_map[i];
 		if (i == 0) {
@@ -366,7 +391,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 	// Token Set
 	fprintf(fptr, "\n\n// %s: GetToken\n", genVar);
-	fprintf(fptr, "TRIE_TOKEN %s_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {\n    *has_token = 1;\n    TRIE_TOKEN token = 0;\n    \n", genVar);
+	fprintf(fptr, "TRIE_TOKEN __internal_%s_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {\n    *has_token = 1;\n    TRIE_TOKEN token = 0;\n    \n", genVar);
 	noizu_auto_trie_compact_token_node* t = details->token_map;
 	int f = 1;
 	while (t) {
@@ -436,7 +461,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	}
 
 	fprintf(fptr, "\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
-	fprintf(fptr, "unsigned char %s_node_map[] = {\n", genVar);
+	fprintf(fptr, "unsigned char __internal_%s_node_map[] = {\n", genVar);
 	for (i = 0; i < total_bytes; i++) {
 		fprintf(fptr, "%#04X,", raw[i]);
 		if (i != 0 && ((i + 1) % 4) == 0) fprintf(fptr, "\n");
@@ -447,7 +472,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 
 	fprintf(fptr, "\n\n// %s: Compact Trie Definition, max_sibling_jump=%d rows\n", genVar, details->largest_sibling_jump);
-	fprintf(fptr, "struct noizu_trie__compact__definition %s_inner_def = {\n", genVar);
+	fprintf(fptr, "struct noizu_trie__compact__definition __internal_%s_inner_def = {\n", genVar);
 	fprintf(fptr, "    .size = %d,\n", details->node_count);
 	fprintf(fptr, "    .tokens = %d,\n", details->token_count);
 	fprintf(fptr, "    .characters = %d,\n", details->char_count);
@@ -461,16 +486,16 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	fprintf(fptr, "    .trie_raw_length = %d,\n", total_bytes);
 
 	
-	fprintf(fptr, "    .char_map = %s_chars,\n", genVar);
-	fprintf(fptr, "    .token_code = %s_token,\n", genVar);
-	fprintf(fptr, "    .char_code = %s_cm\n", genVar);
+	fprintf(fptr, "    .char_map = __internal_%s_chars,\n", genVar);
+	fprintf(fptr, "    .token_code = __internal_%s_token,\n", genVar);
+	fprintf(fptr, "    .char_code = __internal_%s_cm\n", genVar);
 	fprintf(fptr, "};\n");
 
 
 	fprintf(fptr, "struct noizu_trie_definition %s = {\n", genVar);
 	fprintf(fptr, "    .constant = 1,\n");
 	fprintf(fptr, "    .type = TRIE_COMPACT_TYPE,\n");
-	fprintf(fptr, "    .type_definition = &%s_inner_def,\n", genVar);
+	fprintf(fptr, "    .type_definition = &__internal_%s_inner_def,\n", genVar);
 	fprintf(fptr, "    .trie_init = noizu_trie__compact__init,\n");
 	fprintf(fptr, "    .trie_free = noizu_trie__compact__free,\n");
 	fprintf(fptr, "    .trie_validate = noizu_trie__compact__validate,\n");
@@ -480,25 +505,23 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 
 
 
-	n = index;
-	fprintf(fptr, "\n\n\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
-	fprintf(fptr, " /*\n");
-	fprintf(fptr, " * %s_node_map_encoding = [\n", genVar);
-	while (n) {
-		unsigned int c = details->char_reverse[n->key];
-		fprintf(fptr, " * index %d| char:%c(%d), sib_jump: %d, child_jump: %d|%s,\n", n->index - 1, n->key, c, n->relative_sibling_index, n->relative_child_index, n->termination_code ? n->termination_code : "");
-		n = n->index_route;
-	}
-	fprintf(fptr, " * ];\n");
-	fprintf(fptr, " */\n");
-
-
-
+	//n = index;
+	//fprintf(fptr, "\n\n\n\n// %s: Node Binary| Bits per field = %d, required = %d\n", genVar, field_width, total_bytes);
+	//fprintf(fptr, " /*\n");
+	//fprintf(fptr, " * %s_node_map_encoding = [\n", genVar);
+	//while (n) {
+	//	unsigned int c = details->char_reverse[n->key];
+	//	fprintf(fptr, " * index %d| char:%c(%d), sib_jump: %d, child_jump: %d|%s,\n", n->index - 1, n->key, c, n->relative_sibling_index, n->relative_child_index, n->termination_code ? n->termination_code : "");
+	//	n = n->index_route;
+	//}
+	//fprintf(fptr, " * ];\n");
+	//fprintf(fptr, " */\n");
 }
 
 void gen_struct_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
-	fprintf(fptr, "\n\n#include \"noizu_trie_s.h\"\n\nnoizu_trie_s %s[] = {", genVar);
+	fprintf(fptr, "\n\n#include \"noizu_trie.h\"\n#include \"noizu_trie_s.h\"\n\nnoizu_trie_s __internal_%s_srr[] = {", genVar);
 	fprintf(fptr, "{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}");
+	unsigned int tally = 1;
 	while (index) {
 		unsigned int next = index->next_sibling ? index->next_sibling->index : 0;
 		unsigned int child = index->first_child ? index->first_child->index : 0;
@@ -506,8 +529,29 @@ void gen_struct_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
 		fprintf(fptr, "\n,{.key = '%C', .next_sibling = %u, .first_child = %u, .termination_code = %s}", key, next, child, (index->termination_code ? index->termination_code : "0"));
 		// std::cout << ",\n" << "{.key = '" << key << "', .next_sibling = " << next << ", .first_child = " << child << ", .termination_code = " << termination_code << "}";
 		index = index->index_route;
+		tally++;
 	}
-	fprintf(fptr, "};\n");
+	fprintf(fptr, "};\n\n\n\n");
+
+
+	fprintf(fptr, "struct noizu_trie__struct__definition __internal_%s_inner_def = {\n", genVar);
+	fprintf(fptr, "    .trie = __internal_%s_srr,\n", genVar);
+	fprintf(fptr, "    .trie_length = %d,\n", tally);
+	fprintf(fptr, "};\n\n\n\n");
+
+
+	fprintf(fptr, "struct noizu_trie_definition %s = {\n", genVar);
+	fprintf(fptr, "    .constant = 1,\n");
+	fprintf(fptr, "    .type = TRIE_STRUCT_TYPE,\n");
+	fprintf(fptr, "    .type_definition = &__internal_%s_inner_def,\n", genVar);
+	fprintf(fptr, "    .trie_init = noizu_trie__struct__init,\n");
+	fprintf(fptr, "    .trie_free = noizu_trie__struct__free,\n");
+	fprintf(fptr, "    .trie_validate = noizu_trie__struct__validate,\n");
+	fprintf(fptr, "    .trie_advance = noizu_trie__struct__advance,\n");
+	fprintf(fptr, "    .trie_tokenize = NULL\n");
+	fprintf(fptr, "};\n\n\n\n");
+
+
 }
 
 

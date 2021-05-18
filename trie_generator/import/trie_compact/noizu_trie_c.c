@@ -6,7 +6,7 @@
 * @copyright Noizu Labs, Inc. 2019.
 */
 
-#include "noizu_trie.h"
+#include "..\noizu_trie.h"
 #include "noizu_trie_c.h"
 
 
@@ -145,12 +145,12 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 			if (has_token) {
 				state->token = token;
 				state->token_index = last_index;
+				state->token_pos = state->req->buffer_pos;
 				// TRIE match if end of input, otherwise last match if not end of string but end of trie with last value matching.
 				state->match_type = (state->terminator == '\0' || state->terminator == state->options.deliminator) ? TRIE_MATCH : TRIE_LAST_MATCH;
 			}
 			else state->match_type = TRIE_NO_MATCH;
 		}
-
 		if (state->terminator == '\0') return TRIE_END_INPUT_EXIT;
 		else if (state->terminator == state->options.deliminator) return TRIE_DELIM_EXIT;
 		else return TRIE_END_PARSE_EXIT;
@@ -164,6 +164,7 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 		}		
 		state->token = compact_trie->token_code(next_index, definition, &has_token);
 		state->token_index = next_index;
+		state->token_pos = state->req->buffer_pos;
 	}
 
 	// Advance Position/Detect end of buffer state.
@@ -176,6 +177,7 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 		if (state->options.end_of_buffer_token && !state->options.keep_last_token) {
 			state->token = compact_trie->token_code(next_index, definition, &has_token);
 			state->token_index = has_token ? next_index : 0;
+			state->token_pos = has_token ? state->req->buffer_pos : 0;
 			state->match_type = has_token ? TRIE_LAST_MATCH : TRIE_NO_MATCH;
 		}
 		state->skip_next = 1;

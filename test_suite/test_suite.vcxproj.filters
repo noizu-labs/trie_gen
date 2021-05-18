@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="suite.c" />
+    <ClCompile Include="trie_struct\TestTrieStruct.c">
+      <Filter>Test Suite\trie_struct</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_struct\TestTrieStruct_Runner.c">
+      <Filter>Test Suite\trie_struct</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_struct\support\struct_trie_test_fixture.c">
+      <Filter>Test Suite\trie_struct\support</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_compact\support\compact_trie_test_fixture.c">
+      <Filter>Test Suite\trie_compact\support</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_compact\TestTrieCompact.c">
+      <Filter>Test Suite\trie_compact</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_compact\TestTrieCompact_Runner.c">
+      <Filter>Test Suite\trie_compact</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_array\TestTrieArray.c">
+      <Filter>Test Suite\trie_array</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_array\TestTrieArray_Runner.c">
+      <Filter>Test Suite\trie_array</Filter>
+    </ClCompile>
+    <ClCompile Include="trie_array\support\array_trie_test_fixture.c">
+      <Filter>Test Suite\trie_array\support</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\src\unity.c">
+      <Filter>Unity</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\extras\memory\src\unity_memory.c">
+      <Filter>Unity\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Unity\extras\fixture\src\unity_fixture.c">
+      <Filter>Unity\fixtures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\trie_generator\import\noitu_trie.c">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\trie_generator\import\trie_array\noizu_trie_a.c">
+      <Filter>Framework\trie_array</Filter>
+    </ClCompile>
+    <ClCompile Include="..\trie_generator\import\trie_compact\noizu_trie_c.c">
+      <Filter>Framework\trie_compact</Filter>
+    </ClCompile>
+    <ClCompile Include="..\trie_generator\import\trie_struct\noizu_trie_s.c">
+      <Filter>Framework\trie_struct</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="suite.h" />
+    <ClInclude Include="trie_struct\support\trie_test_fixture.h">
+      <Filter>Test Suite\trie_struct\support</Filter>
+    </ClInclude>
+    <ClInclude Include="trie_compact\support\trie_test_fixture.h">
+      <Filter>Test Suite\trie_compact\support</Filter>
+    </ClInclude>
+    <ClInclude Include="trie_array\support\trie_test_fixture.h">
+      <Filter>Test Suite\trie_array\support</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\src\unity.h">
+      <Filter>Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\src\unity_internals.h">
+      <Filter>Unity</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\extras\memory\src\unity_memory.h">
+      <Filter>Unity\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\extras\fixture\src\unity_fixture.h">
+      <Filter>Unity\fixtures</Filter>
+    </ClInclude>
+    <ClInclude Include="Unity\extras\fixture\src\unity_fixture_internals.h">
+      <Filter>Unity\fixtures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\trie_generator\import\trie_array\noizu_trie_a.h">
+      <Filter>Framework\trie_array</Filter>
+    </ClInclude>
+    <ClInclude Include="..\trie_generator\import\trie_compact\noizu_trie_c.h">
+      <Filter>Framework\trie_compact</Filter>
+    </ClInclude>
+    <ClInclude Include="..\trie_generator\import\trie_struct\noizu_trie_s.h">
+      <Filter>Framework\trie_struct</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Unity">
+      <UniqueIdentifier>{28669c7d-b728-48cc-86e7-32830b4f9a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unity\fixtures">
+      <UniqueIdentifier>{8880f2fc-a24e-4ffd-bdea-521b32b0eeed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Unity\memory">
+      <UniqueIdentifier>{264dadd7-022b-41eb-b46d-1d813c70eca9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{2aa83479-d508-446f-aa00-36820f062eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\trie_array">
+      <UniqueIdentifier>{47498b7e-3c51-484a-91b1-b57105944e28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\trie_compact">
+      <UniqueIdentifier>{68dc4b4e-5ad6-4e82-86dc-71209d8cf05e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\trie_struct">
+      <UniqueIdentifier>{1879b6e7-86f6-4047-b80e-d1dcbeef16a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite">
+      <UniqueIdentifier>{22373287-7e04-45c0-bcd5-2ae3992f3538}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_struct">
+      <UniqueIdentifier>{9b59a9d1-21ff-44ad-8881-ebec285a5277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_struct\support">
+      <UniqueIdentifier>{3c9ecd23-77ef-4073-b9d3-1a5d90bb18f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_compact">
+      <UniqueIdentifier>{2fb95a76-e9c1-4b6c-8fd5-fd59bbd6b649}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_compact\support">
+      <UniqueIdentifier>{5077c07e-9261-4df5-bfc6-5ea7d36e2d4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_array">
+      <UniqueIdentifier>{a32f44a8-c644-4b3a-9370-5ff1363cb6c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Suite\trie_array\support">
+      <UniqueIdentifier>{fb529123-a213-4bca-8814-1e4a4b160e80}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

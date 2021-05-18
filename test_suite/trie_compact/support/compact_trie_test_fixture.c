@@ -1,8 +1,4 @@
-
-
-#include "noizu_trie.h"
-#include "noizu_trie_c.h"
-
+#include "trie_test_fixture.h"
 
 
 // compact_test_trie: CharMap
@@ -34,13 +30,13 @@ TRIE_CHAR_CODE __internal_compact_test_trie_cm(TRIE_CHAR_CODE c) {
     return 0;
 }
 
-TRIE_CHAR_CODE __internal_compact_test_trie_chars[] = {'*', 'c', 'o', 'n', 't', 'e', 's', 'd', 'g', 'r', '_', 'l', 'i', 'u', 'a', 'b', 'f', 'h', '+', 'p', 'v', 'm', 'y', 'w'};
+TRIE_CHAR_CODE __internal_compact_test_trie_chars[] = { '*', 'c', 'o', 'n', 't', 'e', 's', 'd', 'g', 'r', '_', 'l', 'i', 'u', 'a', 'b', 'f', 'h', '+', 'p', 'v', 'm', 'y', 'w' };
 
 // compact_test_trie: GetToken
 TRIE_TOKEN __internal_compact_test_trie_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {
     *has_token = 1;
     TRIE_TOKEN token = 0;
-    
+
     if (index == 8) token = COMPACT_JK_CONTENTS;
     else if (index == 23) token = COMPACT_JV_DEGREES_CELSIUS;
     else if (index == 32) token = COMPACT_JV_DEGREES_CELSIUS_CONTENTS;
@@ -96,11 +92,11 @@ unsigned char __internal_compact_test_trie_node_map[] = {
 0X41,0X28,0X37,0000,
 0XA0,0XC8,0X95,0X02,
 0X60,0X4C,0X06,0X01,
-0X18,0000,};
+0X18,0000, };
 
 
 // compact_test_trie: Compact Trie Definition, max_sibling_jump=24 rows
-struct noizu_trie__compact__definition __internal_compact_test_trie_inner_def = {
+struct noizu_trie__compact__definition compact_test_trie_inner_def = {
     .size = 97,
     .tokens = 13,
     .characters = 24,
@@ -109,7 +105,7 @@ struct noizu_trie__compact__definition __internal_compact_test_trie_inner_def = 
     .bit_length__child_relative_index = 1,
     .bit_length__child_relative_offset = 10,
     .bit_length = 11,
-    .trie_raw = compact_test_trie_node_map,
+    .trie_raw = __internal_compact_test_trie_node_map,
     .trie_raw_length = 134,
     .char_map = __internal_compact_test_trie_chars,
     .token_code = __internal_compact_test_trie_token,
@@ -118,11 +114,10 @@ struct noizu_trie__compact__definition __internal_compact_test_trie_inner_def = 
 struct noizu_trie_definition compact_test_trie = {
     .constant = 1,
     .type = TRIE_COMPACT_TYPE,
-    .type_definition = &__internal_compact_test_trie_inner_def,
+    .type_definition = &compact_test_trie_inner_def,
     .trie_init = noizu_trie__compact__init,
     .trie_free = noizu_trie__compact__free,
     .trie_validate = noizu_trie__compact__validate,
     .trie_advance = noizu_trie__compact__advance,
     .trie_tokenize = NULL
 };
-

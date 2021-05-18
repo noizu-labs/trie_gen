@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -17,19 +17,46 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Test|Win32">
-      <Configuration>Test</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Test|x64">
-      <Configuration>Test</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\trie_generator\import\noitu_trie.c" />
+    <ClCompile Include="..\trie_generator\import\trie_array\noizu_trie_a.c" />
+    <ClCompile Include="..\trie_generator\import\trie_compact\noizu_trie_c.c" />
+    <ClCompile Include="..\trie_generator\import\trie_struct\noizu_trie_s.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="suite.c" />
+    <ClCompile Include="trie_array\support\array_trie_test_fixture.c" />
+    <ClCompile Include="trie_array\TestTrieArray.c" />
+    <ClCompile Include="trie_array\TestTrieArray_Runner.c" />
+    <ClCompile Include="trie_compact\support\compact_trie_test_fixture.c" />
+    <ClCompile Include="trie_compact\TestTrieCompact.c" />
+    <ClCompile Include="trie_compact\TestTrieCompact_Runner.c" />
+    <ClCompile Include="trie_struct\support\struct_trie_test_fixture.c" />
+    <ClCompile Include="trie_struct\TestTrieStruct.c" />
+    <ClCompile Include="trie_struct\TestTrieStruct_Runner.c" />
+    <ClCompile Include="Unity\extras\fixture\src\unity_fixture.c" />
+    <ClCompile Include="Unity\extras\memory\src\unity_memory.c" />
+    <ClCompile Include="Unity\src\unity.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\trie_generator\import\trie_array\noizu_trie_a.h" />
+    <ClInclude Include="..\trie_generator\import\trie_compact\noizu_trie_c.h" />
+    <ClInclude Include="..\trie_generator\import\trie_struct\noizu_trie_s.h" />
+    <ClInclude Include="suite.h" />
+    <ClInclude Include="trie_array\support\trie_test_fixture.h" />
+    <ClInclude Include="trie_compact\support\trie_test_fixture.h" />
+    <ClInclude Include="trie_struct\support\trie_test_fixture.h" />
+    <ClInclude Include="Unity\extras\fixture\src\unity_fixture.h" />
+    <ClInclude Include="Unity\extras\fixture\src\unity_fixture_internals.h" />
+    <ClInclude Include="Unity\extras\memory\src\unity_memory.h" />
+    <ClInclude Include="Unity\src\unity.h" />
+    <ClInclude Include="Unity\src\unity_internals.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{3BCCB24D-7BD4-45DF-A39B-2045B9A8FBC6}</ProjectGuid>
-    <RootNamespace>triegenerator</RootNamespace>
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{786573fa-d097-4d68-ae86-fa620d3652b6}</ProjectGuid>
+    <RootNamespace>testsuite</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -37,33 +64,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Test|Win32'">
-    <PlatformToolset>v142</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
-    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -83,87 +104,76 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
-    <CustomBuildAfterTargets>
-    </CustomBuildAfterTargets>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
-    <IncludePath>$(ProjectDir)\import\;$(ProjectDir)\Unity\src\;$(ProjectDir)\Unity\extras\memory\src\;$(ProjectDir)\Unity\extras\fixture\src\;$(ProjectDir)\import\compact_struct_implementation\;$(ProjectDir)\import\array_implementation\;$(ProjectDir)\import\struct_implementation\;$(IncludePath)</IncludePath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\trie_generator\import\;$(ProjectDir)\Unity\src;$(ProjectDir)\Unity\extras\fixture\src\;$(ProjectDir)\Unity\extras\memory\src\;$(ProjectDir);</IncludePath>
+    <SourcePath>$(VC_SourcePath);$(SolutionDir)\trie_generator\import\</SourcePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);GENERIC_MODE;</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GENERIC_MODE;UNITY_TEST</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="import\noitu_trie.c" />
-    <ClCompile Include="import\trie_array\noizu_trie_a.c" />
-    <ClCompile Include="import\trie_compact\noizu_trie_c.c" />
-    <ClCompile Include="import\trie_struct\noizu_trie_s.c" />
-    <ClCompile Include="main.c" />
-    <ClCompile Include="trie_generator.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="sample.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\README.md" />
-    <None Include="output\generated.gen" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="import\noizu_trie.h" />
-    <ClInclude Include="import\trie_array\noizu_trie_a.h" />
-    <ClInclude Include="import\trie_compact\noizu_trie_c.h" />
-    <ClInclude Include="import\trie_struct\noizu_trie_s.h" />
-    <ClInclude Include="trie_generator.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

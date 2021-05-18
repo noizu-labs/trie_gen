@@ -10,13 +10,13 @@
 #define __NOIZU_TRIE_H__
 
 #ifdef GENERIC_MODE 
-
+#include <stdio.h>
 #ifdef UNITY_TEST
 #include "unity_memory.h"
 #else
 #include <corecrt_malloc.h>
-#include <vcruntime_string.h>
 #endif
+#include <vcruntime_string.h>
 
 typedef unsigned char       uint8_t;
 typedef signed char         sint8_t;
@@ -230,14 +230,20 @@ typedef struct noizu_trie_state {
 	TRIE_STATE match_type;
 	TRIE_TOKEN error_code;
 	TRIE_TOKEN sentinel_exit_code;
-	TRIE_TOKEN token;
-	TRIE_TOKEN last_token;
+	
 	TRIE_CHAR_CODE terminator; //!< end char / last char.
 	unsigned char initialized;
 
 	uint32_t position;
+
+	TRIE_TOKEN token;
 	uint32_t token_index;
-	uint32_t last_token_index;
+	uint32_t token_pos;
+	
+	TRIE_TOKEN last_token;
+	uint32_t last_token_index;	
+	uint32_t last_token_pos;
+	
 
 
 	// Type specific state.

@@ -6,6 +6,7 @@
 * @copyright Noizu Labs, Inc. 2019.
 */
 
+#include "..\noizu_trie.h"
 #include "noizu_trie_s.h"
 
 TRIE_S_UNIT noizu_trie_s_advance(char k, TRIE_S_UNIT current_node, noizu_trie_s* source) {
@@ -18,6 +19,7 @@ TRIE_S_UNIT noizu_trie_s_advance(char k, TRIE_S_UNIT current_node, noizu_trie_s*
 		if ((*(source + trie_node_index)).key < k) {
 			trie_node_index = (*(source + trie_node_index)).next_sibling;
 		}
+		else break;
 	}
 	return TRIE_NOT_FOUND;
 }
@@ -69,8 +71,8 @@ TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct no
 	// Advance to next node in trie.
 	TRIE_CHAR_CODE c = *(state->req->buffer + state->req->buffer_pos);
 	TRIE_S_UNIT last_index = state->position;
-	TRIE_S_UNIT next_index = noizu_trie_s_advance(c, last_index, ((struct noizu_trie__struct__definition*)definition->type_definition)->trie);
-	if (next_index >= ((struct noizu_trie__struct__definition*)definition->type_definition)->trie_struct_length) {
+	TRIE_S_UNIT next_index = (state->options.hard_delim && state->options.deliminator == c) ? 0 : noizu_trie_s_advance(c, last_index, ((struct noizu_trie__struct__definition*)definition->type_definition)->trie);
+	if (next_index >= ((struct noizu_trie__struct__definition*)definition->type_definition)->trie_length) {
 		state->error_code = TRIE_ARRAY_ACCESS_ERROR;
 		state->match_type = TRIE_ABNORMAL_EXIT;
 		return TRIE_NO_MATCH;
@@ -79,19 +81,22 @@ TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct no
 	// Update State
 	state->position = next_index;
 	if (next_index == 0) {
-		state->terminator = *(state->req->buffer + state->req->buffer_pos);
+		state->terminator = c;
 		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.deliminator) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
 		else {
 			// end of input, if not tracking last token grab previous input to check if last char before walking off trie was a valid token.
 			if (((struct noizu_trie__struct__definition*)definition->type_definition)->trie[last_index].termination_code) {
 				state->token = ((struct noizu_trie__struct__definition*)definition->type_definition)->trie[last_index].termination_code;
 				state->token_index = last_index;
+				state->token_pos = state->req->buffer_pos;
 				// TRIE match if end of input, otherwise last match if not end of string but end of trie with last value matching.
 				state->match_type = (state->terminator == '\0' || state->terminator == state->options.deliminator) ? TRIE_MATCH : TRIE_LAST_MATCH;
 			}
 			else state->match_type = TRIE_NO_MATCH;
 		}
-		return (state->terminator == '\0' || state->terminator == state->options.deliminator) ? TRIE_END_INPUT_EXIT : TRIE_END_PARSE_EXIT;
+		if (state->terminator == '\0') return TRIE_END_INPUT_EXIT;
+		else if (state->terminator == state->options.deliminator) return TRIE_DELIM_EXIT;
+		else return TRIE_END_PARSE_EXIT;
 	}
 
 	// Track token matches if option set
@@ -102,6 +107,7 @@ TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct no
 		}
 		state->token = (((struct noizu_trie__struct__definition*)definition->type_definition)->trie[next_index].termination_code);
 		state->token_index = next_index;
+		state->token_pos = state->req->buffer_pos;
 	}
 
 	// Advance Position/Detect end of buffer state.
@@ -113,8 +119,9 @@ TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct no
 		// check for token if end of buffer and not already checked due to keep_last_token flow.
 		if (state->options.end_of_buffer_token && !state->options.keep_last_token) {
 			state->token = (((struct noizu_trie__struct__definition*)definition->type_definition)->trie[next_index].termination_code);
-			state->token_index = next_index;
-			state->match_type == state->token ? TRIE_LAST_MATCH : TRIE_NO_MATCH;
+			state->token_index = state->token ? next_index : 0;
+			state->token_pos = state->token ? state->req->buffer_pos : 0;
+			state->match_type = state->token ? TRIE_LAST_MATCH : TRIE_NO_MATCH;
 		}
 		state->skip_next = 1;
 		return TRIE_BUFFER_END;

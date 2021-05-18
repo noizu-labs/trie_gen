@@ -1,3 +1,5 @@
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,10 +7,6 @@
 
 int main(int argc, char *argv[])
 {
-	// Temp (until unit test target added)
-	char* o[] = { 0 };
-	suite(0, o);
-
 
 	char* inputFile = argv[1];
 	char defaultOutputFile[] = "import/generated.gen";
@@ -17,6 +15,7 @@ int main(int argc, char *argv[])
 	char* outputVar = (argc > 3) ? argv[3] : defaultOutputFile;
 	int structMode = 0;
 	int compactMode = 0;
+
 
     //---------------------------------
 	// Command Line Args
@@ -33,10 +32,7 @@ int main(int argc, char *argv[])
 		structMode = (strncmp(argv[4], "struct", 6) == 0) ? 1 : 0;
 		compactMode = (strncmp(argv[4], "compact", 6) == 0) ? 1 : 0;
 	}
-
-
 	compactMode = 1;
-	
 
 	//---------------------------------
 	// Runtime Settings

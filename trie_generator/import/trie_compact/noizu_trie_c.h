@@ -9,7 +9,7 @@
 #ifndef __NOIZU_TRIE_C_H__
 #define __NOIZU_TRIE_C_H__
 
-#include "noizu_trie.h"
+#include "../noizu_trie.h"
 
 struct noizu_trie__compact__definition;
 struct noizu_trie__compact__state;
