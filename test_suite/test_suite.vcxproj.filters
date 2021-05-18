@@ -87,6 +87,9 @@
     <ClInclude Include="..\trie_generator\import\trie_struct\noizu_trie_s.h">
       <Filter>Framework\trie_struct</Filter>
     </ClInclude>
+    <ClInclude Include="..\trie_generator\import\noizu_trie.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Unity">

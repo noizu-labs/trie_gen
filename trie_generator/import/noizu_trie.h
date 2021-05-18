@@ -92,14 +92,15 @@ typedef request_args_t offset_buffer;
 #define TRIE_ARRAY_TYPE 3
 
 // Constants
-#define TRIE_NO_MATCH 0
-#define TRIE_MATCH 1
+#define TRIE_NO_MATCH 0x00
+#define TRIE_MATCH 0x10
+#define TRIE_EXACT_MATCH (TRIE_MATCH | 0x01)
 //! indicates a partial match with input string going past entries in trie.  e.g. searched for apple but no trie entry after 'app' was found.
-#define TRIE_PARTIAL_MATCH 2
+#define TRIE_PARTIAL_MATCH (TRIE_MATCH | 0x02)
 //! indicates a partial match with input string going past entries in trie.  e.g. searched for apple but no trie entry after 'appl' was found.
-#define TRIE_LAST_MATCH 3
+#define TRIE_LAST_MATCH (TRIE_MATCH | 0x04)
 //! indicate early exit due to sentinel
-#define TRIE_PARTIAL_SENTINEL_EXIT 4
+#define TRIE_PARTIAL_SENTINEL_EXIT 0x20
 
 
 // TRIE RESPONSE CODES - major
@@ -209,7 +210,7 @@ typedef struct noizu_trie_definition {
  * @brief trie config settings.
  */
 typedef struct noizu_trie_options {
-	TRIE_CHAR_CODE deliminator;
+	TRIE_CHAR_CODE delimiter;
 	uint8_t keep_last_token : 1;
 	uint8_t end_of_buffer_token : 1;
 	uint8_t hard_delim : 1;

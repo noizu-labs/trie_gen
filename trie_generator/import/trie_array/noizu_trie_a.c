@@ -71,7 +71,7 @@ TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noi
 	// Advance to next node in trie.
 	TRIE_CHAR_CODE c = *(state->req->buffer + state->req->buffer_pos);
 	TRIE_A_UNIT last_index = state->position;
-	TRIE_A_UNIT next_index = (state->options.hard_delim && state->options.deliminator == c) ? 0 : noizu_trie_a_advance(c, last_index, ((struct noizu_trie__array__definition*)definition->type_definition)->trie);
+	TRIE_A_UNIT next_index = (state->options.hard_delim && state->options.delimiter == c) ? 0 : noizu_trie_a_advance(c, last_index, ((struct noizu_trie__array__definition*)definition->type_definition)->trie);
 	if (next_index >= ((struct noizu_trie__array__definition*)definition->type_definition)->trie_length) {
 		state->error_code = TRIE_ARRAY_ACCESS_ERROR;
 		state->match_type = TRIE_ABNORMAL_EXIT;
@@ -82,7 +82,7 @@ TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noi
 	state->position = next_index;
 	if (next_index == 0) {
 		state->terminator = c;
-		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.deliminator) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
+		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.delimiter) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
 		else {
 			// end of input, if not tracking last token grab previous input to check if last char before walking off trie was a valid token.
 			if (((struct noizu_trie__array__definition*)definition->type_definition)->trie[last_index][TRIE_A_TOKEN]) {
@@ -90,12 +90,12 @@ TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noi
 				state->token_index = last_index;
 				state->token_pos = state->req->buffer_pos;
 				// TRIE match if end of input, otherwise last match if not end of string but end of trie with last value matching.
-				state->match_type = (state->terminator == '\0' || state->terminator == state->options.deliminator) ? TRIE_MATCH : TRIE_LAST_MATCH;
+				state->match_type = (state->terminator == '\0' || state->terminator == state->options.delimiter) ? TRIE_MATCH : TRIE_LAST_MATCH;
 			}
 			else state->match_type = TRIE_NO_MATCH;			
 		}
 		if (state->terminator == '\0') return TRIE_END_INPUT_EXIT;
-		else if (state->terminator == state->options.deliminator) return TRIE_DELIM_EXIT;
+		else if (state->terminator == state->options.delimiter) return TRIE_DELIM_EXIT;
 		else return TRIE_END_PARSE_EXIT;
 	}
 

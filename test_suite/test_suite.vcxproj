@@ -39,6 +39,7 @@
     <ClCompile Include="Unity\src\unity.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\trie_generator\import\noizu_trie.h" />
     <ClInclude Include="..\trie_generator\import\trie_array\noizu_trie_a.h" />
     <ClInclude Include="..\trie_generator\import\trie_compact\noizu_trie_c.h" />
     <ClInclude Include="..\trie_generator\import\trie_struct\noizu_trie_s.h" />

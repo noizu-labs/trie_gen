@@ -98,7 +98,7 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 
 	
 		
-	if ((!(state->options.hard_delim && state->options.deliminator == c)) && !(state->position == TRIE_NOT_FOUND && state->initialized)) {
+	if ((!(state->options.hard_delim && state->options.delimiter == c)) && !(state->position == TRIE_NOT_FOUND && state->initialized)) {
 		TRIE_CHAR_CODE scan_for = ((struct noizu_trie__compact__definition*)definition->type_definition)->char_code(c);
 		if (scan_for != TRIE_NOT_FOUND) {
 			// 1. Advance to child if TRIE_INDEX != TRIE_NOT_FOUND or uninitilized.
@@ -138,7 +138,7 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 	state->position = next_index;
 	if (advance_code == TRIE_NOT_FOUND) {
 		state->terminator = c;
-		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.deliminator) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
+		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.delimiter) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
 		else {
 			// end of input, if not tracking last token grab previous input to check if last char before walking off trie was a valid token.
 			TRIE_TOKEN token = compact_trie->token_code(last_index, definition, &has_token);
@@ -147,12 +147,12 @@ TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct n
 				state->token_index = last_index;
 				state->token_pos = state->req->buffer_pos;
 				// TRIE match if end of input, otherwise last match if not end of string but end of trie with last value matching.
-				state->match_type = (state->terminator == '\0' || state->terminator == state->options.deliminator) ? TRIE_MATCH : TRIE_LAST_MATCH;
+				state->match_type = (state->terminator == '\0' || state->terminator == state->options.delimiter) ? TRIE_MATCH : TRIE_LAST_MATCH;
 			}
 			else state->match_type = TRIE_NO_MATCH;
 		}
 		if (state->terminator == '\0') return TRIE_END_INPUT_EXIT;
-		else if (state->terminator == state->options.deliminator) return TRIE_DELIM_EXIT;
+		else if (state->terminator == state->options.delimiter) return TRIE_DELIM_EXIT;
 		else return TRIE_END_PARSE_EXIT;
 	}
 

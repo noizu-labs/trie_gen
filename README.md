@@ -1,8 +1,9 @@
 Noizu Trie Generator
 ==========================================
 
-The Noizu Trie Generator may be used to create compile time trie lookup table, using either a user friendly array of structs or barebones array or int (or char) implementation.
-Generate your Trie, copy and paste the generated output into your project and include the noizu_trie.c and noizu_trie.h files in your project path.
+The Noizu Trie Generator tool and library may be used to create compile time trie lookup table, with the implementers choice of underlying implementation.
+
+Generate your Trie, copy and paste the generated output into your project and include the noizu_trie.c and noizu_trie.h and implementation specific folders from this projects trie_generator/import directory.
 
 Use in combination with the [Noizu Streaming Json](http://github.com/noizu/streaming-json-parser) for fast compact parsing of too large for memory embedded data streams.
 
@@ -19,234 +20,426 @@ Include appropriate noizu_trie_a.h and noizu_trie_a.c or noizu_trie_s.h, noizu_t
 
 # Examples
 
-## Array Implementation
-```
-typedef int noizu_trie_a[4];
-
-// Example
-trie_generator.exe sample.text import/generated.gen my_trie
-
-// Input  (Macro Def, Enum or Integer Identifier for Input String)
-DEF_VAR_1|Token One
-DEF_VAR_2|Another Token
-1234|Token Three Hundred
-4312|More Tokens
-
-// Output
-noizu_trie_a my_trie[] = {{0, 0, 0, 0}
-,{'*', 0, 2, 0}
-,{'A', 3, 36, 0}
-,{'M', 4, 5, 0}
-,{'T', 0, 15, 0}
-,{'o', 0, 6, 0}
-,{'r', 0, 7, 0}
-,{'e', 0, 8, 0}
-,{' ', 0, 9, 0}
-,{'T', 0, 10, 0}
-,{'o', 0, 11, 0}
-,{'k', 0, 12, 0}
-,{'e', 0, 13, 0}
-,{'n', 0, 14, 0}
-,{'s', 0, 0, 4312}
-,{'o', 0, 16, 0}
-,{'k', 0, 17, 0}
-,{'e', 0, 18, 0}
-,{'n', 0, 19, 0}
-,{' ', 0, 20, 0}
-,{'O', 21, 34, 0}
-,{'T', 0, 22, 0}
-,{'h', 0, 23, 0}
-,{'r', 0, 24, 0}
-,{'e', 0, 25, 0}
-,{'e', 0, 26, 0}
-,{' ', 0, 27, 0}
-,{'H', 0, 28, 0}
-,{'u', 0, 29, 0}
-,{'n', 0, 30, 0}
-,{'d', 0, 31, 0}
-,{'r', 0, 32, 0}
-,{'e', 0, 33, 0}
-,{'d', 0, 0, 1234}
-,{'n', 0, 35, 0}
-,{'e', 0, 0, DEF_VAR_1}
-,{'n', 0, 37, 0}
-,{'o', 0, 38, 0}
-,{'t', 0, 39, 0}
-,{'h', 0, 40, 0}
-,{'e', 0, 41, 0}
-,{'r', 0, 42, 0}
-,{' ', 0, 43, 0}
-,{'T', 0, 44, 0}
-,{'o', 0, 45, 0}
-,{'k', 0, 46, 0}
-,{'e', 0, 47, 0}
-,{'n', 0, 0, DEF_VAR_2}};
 
 
+## Dynamically Sized Bitmap Implementation (Compact)
 
-```
-
-
-## Struct Implementation
-```
-typedef struct noizu_trie_s {
-	char key;
-	unsigned int next_sibling;
-	unsigned int first_child;
-	unsigned int termination_code;
-} noizu_trie_s;
-
-
-// Example
-trie_generator.exe sample.text import/generated.gen my_trie struct
-
-// Input
-DEF_VAR_1|Token One
-DEF_VAR_2|Another Token
-1234|Token Three Hundred
-4312|More Tokens
-
-
-noizu_trie_s forecast_trie[] = {{.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}
-,{.key = '*', .next_sibling = 0, .first_child = 2, .termination_code = 0}
-,{.key = 'A', .next_sibling = 3, .first_child = 36, .termination_code = 0}
-,{.key = 'M', .next_sibling = 4, .first_child = 5, .termination_code = 0}
-,{.key = 'T', .next_sibling = 0, .first_child = 15, .termination_code = 0}
-,{.key = 'o', .next_sibling = 0, .first_child = 6, .termination_code = 0}
-,{.key = 'r', .next_sibling = 0, .first_child = 7, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 8, .termination_code = 0}
-,{.key = ' ', .next_sibling = 0, .first_child = 9, .termination_code = 0}
-,{.key = 'T', .next_sibling = 0, .first_child = 10, .termination_code = 0}
-,{.key = 'o', .next_sibling = 0, .first_child = 11, .termination_code = 0}
-,{.key = 'k', .next_sibling = 0, .first_child = 12, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 13, .termination_code = 0}
-,{.key = 'n', .next_sibling = 0, .first_child = 14, .termination_code = 0}
-,{.key = 's', .next_sibling = 0, .first_child = 0, .termination_code = 4312}
-,{.key = 'o', .next_sibling = 0, .first_child = 16, .termination_code = 0}
-,{.key = 'k', .next_sibling = 0, .first_child = 17, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 18, .termination_code = 0}
-,{.key = 'n', .next_sibling = 0, .first_child = 19, .termination_code = 0}
-,{.key = ' ', .next_sibling = 0, .first_child = 20, .termination_code = 0}
-,{.key = 'O', .next_sibling = 21, .first_child = 34, .termination_code = 0}
-,{.key = 'T', .next_sibling = 0, .first_child = 22, .termination_code = 0}
-,{.key = 'h', .next_sibling = 0, .first_child = 23, .termination_code = 0}
-,{.key = 'r', .next_sibling = 0, .first_child = 24, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 25, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 26, .termination_code = 0}
-,{.key = ' ', .next_sibling = 0, .first_child = 27, .termination_code = 0}
-,{.key = 'H', .next_sibling = 0, .first_child = 28, .termination_code = 0}
-,{.key = 'u', .next_sibling = 0, .first_child = 29, .termination_code = 0}
-,{.key = 'n', .next_sibling = 0, .first_child = 30, .termination_code = 0}
-,{.key = 'd', .next_sibling = 0, .first_child = 31, .termination_code = 0}
-,{.key = 'r', .next_sibling = 0, .first_child = 32, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 33, .termination_code = 0}
-,{.key = 'd', .next_sibling = 0, .first_child = 0, .termination_code = 1234}
-,{.key = 'n', .next_sibling = 0, .first_child = 35, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 0, .termination_code = DEF_VAR_1}
-,{.key = 'n', .next_sibling = 0, .first_child = 37, .termination_code = 0}
-,{.key = 'o', .next_sibling = 0, .first_child = 38, .termination_code = 0}
-,{.key = 't', .next_sibling = 0, .first_child = 39, .termination_code = 0}
-,{.key = 'h', .next_sibling = 0, .first_child = 40, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 41, .termination_code = 0}
-,{.key = 'r', .next_sibling = 0, .first_child = 42, .termination_code = 0}
-,{.key = ' ', .next_sibling = 0, .first_child = 43, .termination_code = 0}
-,{.key = 'T', .next_sibling = 0, .first_child = 44, .termination_code = 0}
-,{.key = 'o', .next_sibling = 0, .first_child = 45, .termination_code = 0}
-,{.key = 'k', .next_sibling = 0, .first_child = 46, .termination_code = 0}
-,{.key = 'e', .next_sibling = 0, .first_child = 47, .termination_code = 0}
-,{.key = 'n', .next_sibling = 0, .first_child = 0, .termination_code = DEF_VAR_2}};
-```
-
-
-##  Bit packed implementation
-```
-// _my_trie: CharMap
-TRIE_C_CHAR _my_trie_cm(TRIE_C_CHAR c) {
+```c
+// compact_test_trie: CharMap
+TRIE_CHAR_CODE __internal_compact_test_trie_cm(TRIE_CHAR_CODE c) {
     if (c == '*') return 1;
-    if (c == 'A') return 2;
-    if (c == 'n') return 3;
-    if (c == 'o') return 4;
+    if (c == 'c') return 2;
+    if (c == 'o') return 3;
+    if (c == 'n') return 4;
     if (c == 't') return 5;
-    if (c == 'h') return 6;
-    if (c == 'e') return 7;
-    if (c == 'r') return 8;
-    if (c == ' ') return 9;
-    if (c == 'T') return 10;
-    if (c == 'k') return 11;
-    if (c == 'M') return 12;
-    if (c == 's') return 13;
-    if (c == 'O') return 14;
-    if (c == 'H') return 15;
-    if (c == 'u') return 16;
-    if (c == 'd') return 17;
+    if (c == 'e') return 6;
+    if (c == 's') return 7;
+    if (c == 'd') return 8;
+    if (c == 'g') return 9;
+    if (c == 'r') return 10;
+    if (c == '_') return 11;
+    if (c == 'l') return 12;
+    if (c == 'i') return 13;
+    if (c == 'u') return 14;
+    if (c == 'a') return 15;
+    if (c == 'b') return 16;
+    if (c == 'f') return 17;
+    if (c == 'h') return 18;
+    if (c == '+') return 19;
+    if (c == 'p') return 20;
+    if (c == 'v') return 21;
+    if (c == 'm') return 22;
+    if (c == 'y') return 23;
+    if (c == 'w') return 24;
     return 0;
 }
 
-TRIE_C_CHAR _my_trie_chars[] = {'*', 'A', 'n', 'o', 't', 'h', 'e', 'r', ' ', 'T', 'k', 'M', 's', 'O', 'H', 'u', 'd'};
+TRIE_CHAR_CODE __internal_compact_test_trie_chars[] = { '*', 'c', 'o', 'n', 't', 'e', 's', 'd', 'g', 'r', '_', 'l', 'i', 'u', 'a', 'b', 'f', 'h', '+', 'p', 'v', 'm', 'y', 'w' };
 
-// _my_trie: SetToken
-TRIE_C_TOKEN _my_trie_token(TRIE_C_TOKEN clear, noizu_trie_compact_state* state, noizu_trie_compact_definition* definition) {
-    TRIE_C_TOKEN has_token = 1;
-    TRIE_C_TOKEN token = 0;
-    TRIE_C_UNIT index = state->trie_index;
-    if (index == 13) token = DEF_VAR_2;
-    else if (index == 24) token = 4312;
-    else if (index == 33) token = DEF_VAR_1;
-    else if (index == 46) token = 1234;
-    else has_token = 0;
+// compact_test_trie: GetToken
+TRIE_TOKEN __internal_compact_test_trie_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {
+    *has_token = 1;
+    TRIE_TOKEN token = 0;
 
-    if (((clear && !has_token) || has_token) && state->token != TRIE_NOT_FOUND) {
-        state->last_token = state->token;
-        state->last_token_index == state->token_index;
-    }
-    if (clear && !has_token) {
-        state->token = 0;
-        state->token_index = 0;
-    }
-    if (has_token) {
-        state->token = token;
-        state->token_index = state->trie_index;
-    }
-    return (has_token ? TRIE_PARTIAL_MATCH : TRIE_NOT_FOUND);
+    if (index == 8) token = COMPACT_JK_CONTENTS;
+    else if (index == 23) token = COMPACT_JV_DEGREES_CELSIUS;
+    else if (index == 32) token = COMPACT_JV_DEGREES_CELSIUS_CONTENTS;
+    else if (index == 39) token = COMPACT_JK_ENABLED;
+    else if (index == 47) token = COMPACT_JK_FEATURED;
+    else if (index == 52) token = COMPACT_JK_FIELDS;
+    else if (index == 57) token = COMPACT_HELLO;
+    else if (index == 63) token = COMPACT_HELLO_HELLO;
+    else if (index == 66) token = COMPACT_JK_ONE;
+    else if (index == 72) token = COMPACT_JK_OPTIONS;
+    else if (index == 89) token = COMPACT_JV_RELATIVE_HUMIDITY;
+    else if (index == 94) token = COMPACT_JK_THREE;
+    else if (index == 96) token = COMPACT_JK_TWO;
+    else *has_token = 0;
+
+    return token;
 }
 
 
 
-// _my_trie: Node Binary| Bits per field = 10, required = 59
-unsigned char _my_trie_node_map[] = {
-0X08,0X45,0XB1,0X84,
-0X81,0X28,0X4C,0X13,
-0X85,0X01,0X48,0X54,
-0X12,0X05,0X61,0X38,
-0X46,0X06,0X5C,0X81,
-0X40,0X4E,0X14,0X85,
-0X41,0X20,0X56,0X13,
-0X84,0X61,0X68,0X14,
-0X12,0X05,0X61,0X38,
-0X46,0X14,0X85,0XC7,
-0X18,0X4E,0X05,0X04,
-0XC1,0X40,0X4E,0X13,
-0X85,0X21,0X78,0X60,
-0X11,0X86,0X21,0X40,
-0X4E,0X18,0X80,};
+// compact_test_trie: Node Binary| Bits per field = 11, required = 134
+unsigned char __internal_compact_test_trie_node_map[] = {
+0X08,0X22,0X44,0X60,
+0X90,0X12,0X82,0X60,
+0X48,0X09,0X41,0X38,
+0X08,0XC4,0XC0,0XA4,
+0X15,0X02,0X60,0X4C,
+0X09,0XC1,0X58,0X22,
+0X04,0XC0,0XB0,0X13,
+0X82,0XD0,0X5C,0X09,
+0XC1,0X58,0X22,0X04,
+0X60,0X90,0X12,0X82,
+0X60,0X48,0X09,0X41,
+0X38,0X06,0X3C,0X80,
+0XBC,0X18,0X02,0XC0,
+0X4C,0X0A,0000,0X8B,
+0X66,0X3D,0XE0,0X94,
+0X17,0X02,0XA0,0X4C,
+0X0A,0000,0X68,0X26,
+0X05,0X80,0XA0,0X13,
+0X81,0X25,0XCC,0X0B,
+0X01,0X60,0X23,0X06,
+0X60,0XC8,0X13,0X02,
+0XC0,0X58,0X08,0XC0,
+0X1A,0X64,0X14,0XC0,
+0X50,0X12,0X82,0XD0,
+0X46,0X09,0X01,0X38,
+0X0A,0X8C,0XC0,0XB0,
+0X17,0X82,0X50,0X5A,
+0X0D,0X41,0X30,0X2B,
+0X06,0X40,0XB8,0X1B,
+0X02,0XD0,0X50,0X0B,
+0X41,0X28,0X37,0000,
+0XA0,0XC8,0X95,0X02,
+0X60,0X4C,0X06,0X01,
+0X18,0000, };
 
 
-// _my_trie: Compact Trie Definition, max_sibling_jump=13 rows
-noizu_trie_compact_definition _my_trie = {
-    .size = 47,
-    .tokens = 4,
-    .characters = 17,
+// compact_test_trie: Compact Trie Definition, max_sibling_jump=24 rows
+struct noizu_trie__compact__definition compact_test_trie_inner_def = {
+    .size = 97,
+    .tokens = 13,
+    .characters = 24,
     .bit_length__character_code = 5,
-    .bit_length__sibling_relative_index = 4,
+    .bit_length__sibling_relative_index = 5,
     .bit_length__child_relative_index = 1,
-    .bit_length__child_relative_offset = 9,
-    .bit_length = 10,
-    .trie_raw = _my_trie_node_map,
-    .trie_raw_length = 59,
-    .char_map = _my_trie_chars,
-    .set_node_token = _my_trie_token,
-    .char_code = _my_trie_cm
+    .bit_length__child_relative_offset = 10,
+    .bit_length = 11,
+    .trie_raw = __internal_compact_test_trie_node_map,
+    .trie_raw_length = 134,
+    .char_map = __internal_compact_test_trie_chars,
+    .token_code = __internal_compact_test_trie_token,
+    .char_code = __internal_compact_test_trie_cm
+};
+struct noizu_trie_definition compact_test_trie = {
+    .constant = 1,
+    .type = TRIE_COMPACT_TYPE,
+    .type_definition = &compact_test_trie_inner_def,
+    .trie_init = noizu_trie__compact__init,
+    .trie_free = noizu_trie__compact__free,
+    .trie_validate = noizu_trie__compact__validate,
+    .trie_advance = noizu_trie__compact__advance,
+    .trie_tokenize = NULL
+};
+```
+
+### Tokenize something
+```c
+
+offset_buffer req* = input_source();
+struct noizu_trie_options options = {
+	 0,
+	 .delimiter = '|',
+	 .keep_last_token = 1,
+	 .hard_delim = 1
+};
+struct noizu_trie_state state = { 0 };
+
+TRIE_TOKEN outcome = noizu_trie__init(req, &compact_test_trie, options, &state);
+
+if (!(outcome & TRIE_ERROR)) {
+
+   outcome = noizu_trie__tokenize(&state, &compact_test_trie, NULL);
+	 if (outcome == TRIE_DELIM_EXIT) {
+		 // parse ended on your '|' delimiter not end of buffer or '\0';
+	 }
+
+
+} else {
+  /*
+// error handling.
+
+	// TRIE RESPONSE CODES - major
+	#define TRIE_UNKNOWN 0x0000
+	#define TRIE_EXIT 0x1000
+	#define TRIE_ERROR 0x2000
+	#define TRIE_ARGUMENT_ERROR (TRIE_ERROR | 0x4000)
+	#define TRIE_SUCCESS 0x8000
+
+	// TRIE RESPONSE CODES - EXIT
+	#define TRIE_RETURN_EXIT (TRIE_EXIT | 0x0200)
+	#define TRIE_VALID_EXIT (TRIE_EXIT | TRIE_SUCCESS | 0x0400)
+	#define TRIE_ABNORMAL_EXIT (TRIE_EXIT | 0x0800)
+	#define TRIE_END_INPUT_EXIT (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |  0x0001)
+	#define TRIE_END_PARSE_EXIT (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |  0x0002)
+	#define TRIE_CONTINUE (TRIE_VALID_EXIT | 0x0003)
+	#define TRIE_DELIM_EXIT (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |  0x0004)
+	#define TRIE_OVERFLOW_EXIT (TRIE_ABNORMAL_EXIT | TRIE_RETURN_EXIT | 0x0005)
+	#define TRIE_BUFFER_END (TRIE_VALID_EXIT | TRIE_RETURN_EXIT |0x0006)
+	#define TRIE_BUFFER_END_ON_SKIP (TRIE_ABNORMAL_EXIT | TRIE_RETURN_EXIT |0x0007)
+
+	// ERRORS
+	#define TRIE_ALLOC_FAIL (TRIE_ERROR | 0x0001)
+	#define TRIE_DEFINITION_ERROR (TRIE_ERROR | 0x0002)
+	#define TRIE_ACCESS_ERROR (TRIE_ERROR | 0x0003)
+	#define TRIE_ARRAY_ACCESS_ERROR TRIE_ACCESS_ERROR
+	#define TRIE_STRUCT_ACCESS_ERROR TRIE_ACCESS_ERROR
+
+	// Argument Errors
+	#define TRIE_ARGUMENT_ERROR__INVALID_TYPE (TRIE_ARGUMENT_ERROR | 0x0100)
+	#define TRIE_ARGUMENT_ERROR__INVALID_TYPE_STATE (TRIE_ARGUMENT_ERROR__INVALID_TYPE | 0x0001)
+	#define TRIE_ARGUMENT_ERROR__INVALID_TYPE_DEFINITION (TRIE_ARGUMENT_ERROR__INVALID_TYPE | 0x0002)
+
+	#define TRIE_ARGUMENT_ERROR__NULL (TRIE_ARGUMENT_ERROR | 0x0200)
+	#define TRIE_ARGUMENT_ERROR__NULL_STATE (TRIE_ARGUMENT_ERROR__NULL | 0x0003)
+	#define TRIE_ARGUMENT_ERROR__NULL_DEFINITION (TRIE_ARGUMENT_ERROR__NULL | 0x0004)
+	#define TRIE_ARGUMENT_ERROR__NULL_TYPE_STATE (TRIE_ARGUMENT_ERROR__NULL | 0x0005)
+	#define TRIE_ARGUMENT_ERROR__NULL_TYPE_DEFINITION (TRIE_ARGUMENT_ERROR__NULL | 0x0006)
+
+	#define TRIE_ARGUMENT_ERROR__TYPE (TRIE_ARGUMENT_ERROR | 0x0400)
+	#define TRIE_ARGUMENT_ERROR__TYPE_MISMATCH (TRIE_ARGUMENT_ERROR__TYPE | 0x0007)
+	#define TRIE_ARGUMENT_ERROR__TYPE_INIT_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x0008)
+	#define TRIE_ARGUMENT_ERROR__TYPE_VALIDATE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x0009)
+	#define TRIE_ARGUMENT_ERROR__TYPE_ADVANCE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x000A)
+	#define TRIE_ARGUMENT_ERROR__TYPE_TOKENIZE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x000B)
+	#define TRIE_ARGUMENT_ERROR__TYPE_FREE_NOT_SET (TRIE_ARGUMENT_ERROR__TYPE | 0x000C)
+
+
+	#define TRIE_ERROR_DEALLOC_CONSTANT_DEFINITION (TRIE_ERROR | 0x0010)
+
+
+
+	// TRIE SUCCESS
+	#define TRIE_INITIALIZED (TRIE_SUCCESS | 0x0001)
+
+	*/
+
+}
+
+    TRIE_TOKEN o = noizu_trie__tokenize(&state, &compact_test_trie, NULL);
+    TEST_ASSERT_TOKENIZER_STATE(o, &state, TRIE_DELIM_EXIT, TRIE_MATCH, COMPACT_HELLO, 0, 0, '+');
+}
+
+
+
+
+```
+
+
+
+## Array Implementation
+
+### Generated Source
+```c
+// Generated Trie
+#include "noizu_trie.h"
+#include "noizu_trie_a.h"
+
+const noizu_trie_a __internal_array_test_trie_arr[] = {
+    {0, 0, 0, 0},
+    {'*', 0, 2, 0},
+    {'c', 3, 91, 0},
+    {'d', 4, 10, 0},
+    {'e', 5, 33, 0},
+    {'f', 6, 39, 0},
+    {'h', 7, 51, 0},
+    {'o', 8, 61, 0},
+    {'r', 9, 69, 0},
+    {'t', 0, 85, 0},
+		// .
+		// .
+		// .
+    {'d', 0, 82, 0},
+    {'i', 0, 83, 0},
+    {'t', 0, 84, 0},
+    {'y', 0, 0, ARRAY_JV_RELATIVE_HUMIDITY},
+    {'h', 86, 88, 0},
+    {'w', 0, 87, 0},
+    {'o', 0, 0, ARRAY_JK_TWO},
+    {'r', 0, 89, 0},
+    {'e', 0, 90, 0},
+    {'e', 0, 0, ARRAY_JK_THREE},
+    {'o', 0, 92, 0},
+    {'n', 0, 93, 0},
+    {'t', 0, 94, 0},
+    {'e', 0, 95, 0},
+    {'n', 0, 96, 0},
+    {'t', 0, 97, 0},
+    {'s', 0, 0, ARRAY_JK_CONTENTS}
 };
 
+struct noizu_trie__array__definition __internal_array_test_trie_inner_def = {
+    .trie = (const noizu_trie_a*)__internal_array_test_trie_arr,
+    .trie_length = 98,
+};
 
+struct noizu_trie_definition array_test_trie = {
+    .constant = 1,
+    .type = TRIE_ARRAY_TYPE,
+    .type_definition = &__internal_array_test_trie_inner_def,
+    .trie_init = noizu_trie__array__init,
+    .trie_free = noizu_trie__array__free,
+    .trie_validate = noizu_trie__array__validate,
+    .trie_advance = noizu_trie__array__advance,
+    .trie_tokenize = NULL
+};
+
+```
+
+### Tokenizing a String with Array Implementation
+
+
+```c
+
+
+//---------------------------------------------------------------
+// Custom Sentinel Override to standard Tokenizer Flow
+//---------------------------------------------------------------
+
+TRIE_TOKEN array_test_sentinel(TRIE_TOKEN advance_flag, struct noizu_trie_state* state, struct noizu_trie_definition* definition) {
+
+	struct noizu_trie__array__definition* a_trie = (struct noizu_trie__array__definition*)definition->type_definition;
+	TRIE_TOKEN t = a_trie->trie[state->position][TRIE_A_TOKEN];
+	if (t == ARRAY_JK_CONTENTS) {
+		state->token = t;
+		state->token_index = state->position;
+		state->match_type = TRIE_MATCH;
+		return ARRAY_SENTINEL_HALT_ON_CONTENTS;
+	}
+	if (t == ARRAY_JV_DEGREES_CELSIUS) {
+		state->initialized = FALSE;
+		state->position = 1;
+	}
+	return 0;
+}
+
+
+
+
+
+// Runtime Preferences
+struct noizu_trie_options options = { 0, .delimiter = '+', .keep_last_token = 1 };
+
+// Streaming Input buffer (array struct that contains enough meta data to dynamically reallocate while processing. )
+offset_buffer* req = calloc(1, sizeof(offset_buffer));
+req->buffer = calloc(256, sizeof(uint8_t));
+req->buffer_size = sprintf_s(req->buffer, 256, "degrees_celsiuscontentsrelative_humiditydegrees_celsius");
+req->buffer_pos = 0;
+
+// Init State
+struct noizu_trie_state state = { 0 };
+noizu_trie__init(req, &array_test_trie, options, &state);
+
+// Call entry point noizu_trie__tokenize method, it will forward to per Trie data structure type methods.
+TRIE_TOKEN o = noizu_trie__tokenize(&state, &array_test_trie, array_test_sentinel);
+
+if (o & TRIE_ERROR) oh_no();
+
+if (state.match_type == TRIE_MATCH) {
+	if (state.trie_token == ARRAY_JK_CONTENTS) {
+	    // Input matched ARRAY_JK_CONTENTS or sentinel override action/hint
+	}
+}
+```
+
+
+
+
+
+
+## Struct Implementation
+```c
+
+noizu_trie_s __internal_struct_test_trie_srr[] = { {.key = 0, .next_sibling = 0, .first_child = 0, .termination_code = 0}
+,{.key = '*', .next_sibling = 0, .first_child = 2, .termination_code = 0}
+,{.key = 'c', .next_sibling = 3, .first_child = 91, .termination_code = 0}
+,{.key = 'd', .next_sibling = 4, .first_child = 10, .termination_code = 0}
+,{.key = 'e', .next_sibling = 5, .first_child = 33, .termination_code = 0}
+,{.key = 'f', .next_sibling = 6, .first_child = 39, .termination_code = 0}
+,{.key = 'h', .next_sibling = 7, .first_child = 51, .termination_code = 0}
+,{.key = 'o', .next_sibling = 8, .first_child = 61, .termination_code = 0}
+// .
+// .
+// .
+,{.key = 'i', .next_sibling = 0, .first_child = 81, .termination_code = 0}
+,{.key = 'd', .next_sibling = 0, .first_child = 82, .termination_code = 0}
+,{.key = 'i', .next_sibling = 0, .first_child = 83, .termination_code = 0}
+,{.key = 't', .next_sibling = 0, .first_child = 84, .termination_code = 0}
+,{.key = 'y', .next_sibling = 0, .first_child = 0, .termination_code = STRUCT_JV_RELATIVE_HUMIDITY}
+,{.key = 'h', .next_sibling = 86, .first_child = 88, .termination_code = 0}
+,{.key = 'w', .next_sibling = 0, .first_child = 87, .termination_code = 0}
+,{.key = 'o', .next_sibling = 0, .first_child = 0, .termination_code = STRUCT_JK_TWO}
+,{.key = 'r', .next_sibling = 0, .first_child = 89, .termination_code = 0}
+,{.key = 'e', .next_sibling = 0, .first_child = 90, .termination_code = 0}
+,{.key = 'e', .next_sibling = 0, .first_child = 0, .termination_code = STRUCT_JK_THREE}
+,{.key = 'o', .next_sibling = 0, .first_child = 92, .termination_code = 0}
+,{.key = 'n', .next_sibling = 0, .first_child = 93, .termination_code = 0}
+,{.key = 't', .next_sibling = 0, .first_child = 94, .termination_code = 0}
+,{.key = 'e', .next_sibling = 0, .first_child = 95, .termination_code = 0}
+,{.key = 'n', .next_sibling = 0, .first_child = 96, .termination_code = 0}
+,{.key = 't', .next_sibling = 0, .first_child = 97, .termination_code = 0}
+,{.key = 's', .next_sibling = 0, .first_child = 0, .termination_code = STRUCT_JK_CONTENTS} };
+
+struct noizu_trie__struct__definition __internal_struct_test_trie_inner_def = {
+    .trie = __internal_struct_test_trie_srr,
+    .trie_length = 98,
+};
+
+struct noizu_trie_definition struct_test_trie = {
+    .constant = 1,
+    .type = TRIE_STRUCT_TYPE,
+    .type_definition = &__internal_struct_test_trie_inner_def,
+    .trie_init = noizu_trie__struct__init,
+    .trie_free = noizu_trie__struct__free,
+    .trie_validate = noizu_trie__struct__validate,
+    .trie_advance = noizu_trie__struct__advance,
+    .trie_tokenize = NULL
+};
+
+```
+
+
+
+
+### Tokenizing a String with Struct Implementation
+
+
+```c
+
+extern offset_buffer* req;
+if streaming_input_source(req) {
+
+	// Init State
+  struct noizu_trie_options options = { 0, .delimiter = '+', .keep_last_token = 1 };
+	struct noizu_trie_state state = { 0 };
+	TRIE_TOKEN o = noizu_trie__init(req, &array_test_trie, options, &state);
+  if (o = TRIE_BUFFER_END) {
+		wait_more_streaming_input(req);
+		o = noizu_trie__init(req, &array_test_trie, options, &state);
+		if (o != TRIE_BUFFER_END && state.trie_token  ) {
+          switch (state.trie_token) {
+						 case HELLO_WORLD_STRING:
+						 // do hello world processing.
+						 break;
+						 case GOOD_NIGHT_MOON:
+						 // good night cat.
+						 break;
+					}   
+		}
+	}
+}
 ```
