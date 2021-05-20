@@ -62,14 +62,14 @@ TRIE_TOKEN noizu_trie__array__validate(struct noizu_trie_state* state, struct no
 TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition) {
 	// Advance position (if halted due to end of stream)
 	if (state->skip_next) {
-		if ((state->req->buffer_pos + state->skip_next) < state->req->buffer_size) {
-			state->req->buffer_pos += state->skip_next;
+		if ((state->req_position + state->skip_next) < state->req->buffer_size) {
+			state->req_position += state->skip_next;
 			state->skip_next = 0;
 		} else return TRIE_BUFFER_END_ON_SKIP;
 	}
 
 	// Advance to next node in trie.
-	TRIE_CHAR_CODE c = *(state->req->buffer + state->req->buffer_pos);
+	TRIE_CHAR_CODE c = *(state->req->buffer + state->req_position);
 	TRIE_A_UNIT last_index = state->position;
 	TRIE_A_UNIT next_index = (state->options.hard_delim && state->options.delimiter == c) ? 0 : noizu_trie_a_advance(c, last_index, ((struct noizu_trie__array__definition*)definition->type_definition)->trie);
 	if (next_index >= ((struct noizu_trie__array__definition*)definition->type_definition)->trie_length) {
@@ -91,7 +91,7 @@ TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noi
 			if (((struct noizu_trie__array__definition*)definition->type_definition)->trie[last_index][TRIE_A_TOKEN]) {
 				state->token = ((struct noizu_trie__array__definition*)definition->type_definition)->trie[last_index][TRIE_A_TOKEN];
 				state->token_index = last_index;
-				state->token_pos = state->req->buffer_pos;
+				state->token_pos = state->req_position;
 				// TRIE match if end of input, otherwise last match if not end of string but end of trie with last value matching.
 				if (state->terminator == '\0' || state->terminator == state->options.delimiter) state->match_type = TRIE_MATCH;
 				else state->match_type = (state->options.json_delim && (c == ':' || c == '"' || c == '\'')) ? TRIE_MATCH : TRIE_LAST_MATCH;
@@ -109,16 +109,16 @@ TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noi
 		if (state->token) {
 			state->last_token = state->token;
 			state->last_token_index = state->token_index;
-			state->last_token_pos = state->req->buffer_pos;
+			state->last_token_pos = state->req_position;
 		}
 		state->token = (((struct noizu_trie__array__definition*)definition->type_definition)->trie[next_index][TRIE_A_TOKEN]);
 		state->token_index = next_index;
-		state->token_pos = state->req->buffer_pos;
+		state->token_pos = state->req_position;
 	}
 
 	// Advance Position/Detect end of buffer state.
-	if (state->req->buffer_pos + 1 < state->req->buffer_size) {
-		state->req->buffer_pos++;
+	if (state->req_position + 1 < state->req->buffer_size) {
+		state->req_position++;
 		return TRIE_CONTINUE;
 	}
 	else {
@@ -126,7 +126,7 @@ TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noi
 		if (state->options.end_of_buffer_token && !state->options.keep_last_token) {
 			state->token = (((struct noizu_trie__array__definition*)definition->type_definition)->trie[next_index][TRIE_A_TOKEN]);
 			state->token_index = state->token ? next_index : 0;
-			state->token_pos = state->token ? state->req->buffer_pos : 0;
+			state->token_pos = state->token ? state->req_position : 0;
 			state->match_type = state->token ? TRIE_LAST_MATCH : TRIE_NO_MATCH;
 		}
 		state->skip_next = 1;

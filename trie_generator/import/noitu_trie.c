@@ -10,6 +10,7 @@ TRIE_TOKEN noizu_trie__init(offset_buffer* req, struct noizu_trie_definition* de
 	out->type_state = p;
 	out->req = req;
 	out->options = options;	
+	out->req_position = req->buffer_pos;
 	return definition->trie_init ? definition->trie_init(req, definition, options, out) : TRIE_ARGUMENT_ERROR__TYPE_INIT_NOT_SET;
 }
 
@@ -49,8 +50,8 @@ TRIE_TOKEN noizu_trie__validate(struct noizu_trie_state* state, struct noizu_tri
 	if (definition == NULL) return TRIE_ARGUMENT_ERROR__NULL_DEFINITION;
 	if (state->type != definition->type) return TRIE_ARGUMENT_ERROR__TYPE_MISMATCH;
 	if (definition->type_definition == NULL) return TRIE_ARGUMENT_ERROR__NULL_TYPE_DEFINITION;
-	if ((state->req->buffer_pos + state->skip_next) == state->req->buffer_size) return (TRIE_BUFFER_END | TRIE_ERROR);
-	if ((state->req->buffer_pos + state->skip_next) > state->req->buffer_size) return (TRIE_OVERFLOW_EXIT | TRIE_ERROR);		
+	if ((state->req_position + state->skip_next) == state->req->buffer_size) return (TRIE_BUFFER_END | TRIE_ERROR);
+	if ((state->req_position + state->skip_next) > state->req->buffer_size) return (TRIE_OVERFLOW_EXIT | TRIE_ERROR);		
 	if (definition->trie_init == NULL) return TRIE_ARGUMENT_ERROR__TYPE_INIT_NOT_SET;
 	if (definition->trie_free == NULL) return TRIE_ARGUMENT_ERROR__TYPE_FREE_NOT_SET;
 	if (definition->trie_advance == NULL) return TRIE_ARGUMENT_ERROR__TYPE_ADVANCE_NOT_SET;

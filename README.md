@@ -338,7 +338,7 @@ struct noizu_trie_options options = { 0, .delimiter = '+', .keep_last_token = 1 
 offset_buffer* req = calloc(1, sizeof(offset_buffer));
 req->buffer = calloc(256, sizeof(uint8_t));
 req->buffer_size = sprintf_s(req->buffer, 256, "degrees_celsiuscontentsrelative_humiditydegrees_celsius");
-req->buffer_pos = 0;
+req_position = 0;
 
 // Init State
 struct noizu_trie_state state = { 0 };

@@ -18,6 +18,8 @@
 #endif
 #include <vcruntime_string.h>
 
+#define ICACHE_FLASH_ATTR
+
 typedef unsigned char       uint8_t;
 typedef signed char         sint8_t;
 typedef signed char         int8_t;
@@ -237,6 +239,7 @@ typedef struct noizu_trie_state {
 	unsigned char initialized;
 
 	uint32_t position;
+	uint32_t req_position;
 
 	TRIE_TOKEN token;
 	uint32_t token_index;
