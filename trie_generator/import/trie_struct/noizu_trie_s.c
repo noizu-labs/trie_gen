@@ -82,7 +82,11 @@ TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct no
 	state->position = next_index;
 	if (next_index == 0) {
 		state->terminator = c;
-		if (state->options.keep_last_token) state->match_type = ((state->terminator == '\0' || state->terminator == state->options.delimiter) && state->token) ? TRIE_MATCH : ((state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH);
+		if (state->options.keep_last_token) {
+			if ((state->terminator == '\0' || state->terminator == state->options.delimiter) && state->token) state->match_type = TRIE_MATCH;
+			else if (state->options.json_delim && (c == ':' || c == '"' || c == '\'')) state->match_type = TRIE_MATCH;
+			else state->match_type = (state->last_token || state->token) ? TRIE_PARTIAL_MATCH : TRIE_NO_MATCH;
+		}
 		else {
 			// end of input, if not tracking last token grab previous input to check if last char before walking off trie was a valid token.
 			if (((struct noizu_trie__struct__definition*)definition->type_definition)->trie[last_index].termination_code) {
@@ -90,12 +94,14 @@ TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct no
 				state->token_index = last_index;
 				state->token_pos = state->req->buffer_pos;
 				// TRIE match if end of input, otherwise last match if not end of string but end of trie with last value matching.
-				state->match_type = (state->terminator == '\0' || state->terminator == state->options.delimiter) ? TRIE_MATCH : TRIE_LAST_MATCH;
+				if (state->terminator == '\0' || state->terminator == state->options.delimiter) state->match_type = TRIE_MATCH;
+				else state->match_type = (state->options.json_delim && (c == ':' || c == '"' || c == '\'')) ? TRIE_MATCH : TRIE_LAST_MATCH;
 			}
 			else state->match_type = TRIE_NO_MATCH;
 		}
 		if (state->terminator == '\0') return TRIE_END_INPUT_EXIT;
 		else if (state->terminator == state->options.delimiter) return TRIE_DELIM_EXIT;
+		else if (state->options.json_delim && (c == ':' || c == '"' || c == '\'')) return TRIE_DELIM_EXIT;
 		else return TRIE_END_PARSE_EXIT;
 	}
 

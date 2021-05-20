@@ -27,6 +27,10 @@ TEST_GROUP_RUNNER(TrieArray)
 	RUN_TEST_CASE(TrieArray, UnitTest_Sentinel_Off);
 
 	RUN_TEST_CASE(TrieArray, UnitTest_RunOn);
+
 	RUN_TEST_CASE(TrieArray, UnitTest_HardDelim_On);
 	RUN_TEST_CASE(TrieArray, UnitTest_HardDelim_Off);
+
+	RUN_TEST_CASE(TrieArray, UnitTest_JsonDelim_KL1);
+	RUN_TEST_CASE(TrieArray, UnitTest_JsonDelim_KL0);
 }

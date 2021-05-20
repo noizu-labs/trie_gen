@@ -29,6 +29,7 @@ TEST_GROUP_RUNNER(TrieCompact)
 	RUN_TEST_CASE(TrieCompact, UnitTest_HardDelim_On);
 	RUN_TEST_CASE(TrieCompact, UnitTest_HardDelim_Off);
 
-	
+	RUN_TEST_CASE(TrieCompact, UnitTest_JsonDelim_KL0);
+	RUN_TEST_CASE(TrieCompact, UnitTest_JsonDelim_KL1);
 
 }

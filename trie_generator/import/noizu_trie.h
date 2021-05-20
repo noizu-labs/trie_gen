@@ -214,6 +214,7 @@ typedef struct noizu_trie_options {
 	uint8_t keep_last_token : 1;
 	uint8_t end_of_buffer_token : 1;
 	uint8_t hard_delim : 1;
+	uint8_t json_delim : 1;
 } noizu_trie_options;
 
 /*!
