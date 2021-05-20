@@ -32,4 +32,7 @@ TEST_GROUP_RUNNER(TrieCompact)
 	RUN_TEST_CASE(TrieCompact, UnitTest_JsonDelim_KL0);
 	RUN_TEST_CASE(TrieCompact, UnitTest_JsonDelim_KL1);
 
+
+	RUN_TEST_CASE(TrieCompact, UnitTest_Escape_E1);
+	RUN_TEST_CASE(TrieCompact, UnitTest_Escape_E0);
 }

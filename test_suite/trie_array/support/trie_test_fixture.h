@@ -17,5 +17,6 @@
 #define ARRAY_JV_RELATIVE_HUMIDITY 101
 #define ARRAY_JV_DEGREES_CELSIUS_CONTENTS 102
 #define ARRAY_SENTINEL_HALT_ON_CONTENTS 123
+#define ARRAY_JV_ESCAPE 200
 
 extern struct noizu_trie_definition array_test_trie;

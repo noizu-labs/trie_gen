@@ -482,7 +482,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	fprintf(fptr, "    .bit_length__child_relative_index = %d,\n", log2(details->largest_child_jump));
 	fprintf(fptr, "    .bit_length__child_relative_offset = %d,\n", log2(details->char_count) + log2(details->largest_sibling_jump));
 	fprintf(fptr, "    .bit_length = %d,\n", log2(details->char_count) + log2(details->largest_sibling_jump) + log2(details->largest_child_jump));
-	fprintf(fptr, "    .trie_raw = %s_node_map,\n", genVar);
+	fprintf(fptr, "    .trie_raw = __internal_%s_node_map,\n", genVar);
 	fprintf(fptr, "    .trie_raw_length = %d,\n", total_bytes);
 
 	

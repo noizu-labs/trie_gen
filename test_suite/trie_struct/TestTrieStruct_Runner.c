@@ -32,4 +32,8 @@ TEST_GROUP_RUNNER(TrieStruct)
 
 	RUN_TEST_CASE(TrieStruct, UnitTest_JsonDelim_KL0);
 	RUN_TEST_CASE(TrieStruct, UnitTest_JsonDelim_KL1);
+
+
+	RUN_TEST_CASE(TrieStruct, UnitTest_Escape_E1);
+	RUN_TEST_CASE(TrieStruct, UnitTest_Escape_E0);
 }

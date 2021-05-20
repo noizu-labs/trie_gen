@@ -59,17 +59,11 @@ TRIE_TOKEN noizu_trie__struct__validate(struct noizu_trie_state* state, struct n
 }
 
 TRIE_TOKEN noizu_trie__struct__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition) {
-	// Advance position (if halted due to end of stream)
-	if (state->skip_next) {
-		if ((state->req_position + state->skip_next) < state->req->buffer_size) {
-			state->req_position += state->skip_next;
-			state->skip_next = 0;
-		}
-		else return TRIE_BUFFER_END_ON_SKIP;
-	}
-
 	// Advance to next node in trie.
-	TRIE_CHAR_CODE c = *(state->req->buffer + state->req_position);
+	TRIE_CHAR_CODE c = 0;
+	TRIE_TOKEN r = noizu_trie__next_char(state, definition, &c);
+	if (!(r & TRIE_SUCCESS)) return r;
+
 	TRIE_S_UNIT last_index = state->position;
 	TRIE_S_UNIT next_index = (state->options.hard_delim && state->options.delimiter == c) ? 0 : noizu_trie_s_advance(c, last_index, ((struct noizu_trie__struct__definition*)definition->type_definition)->trie);
 	if (next_index >= ((struct noizu_trie__struct__definition*)definition->type_definition)->trie_length) {

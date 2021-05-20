@@ -33,4 +33,7 @@ TEST_GROUP_RUNNER(TrieArray)
 
 	RUN_TEST_CASE(TrieArray, UnitTest_JsonDelim_KL1);
 	RUN_TEST_CASE(TrieArray, UnitTest_JsonDelim_KL0);
+
+	RUN_TEST_CASE(TrieArray, UnitTest_Escape_E1);
+	RUN_TEST_CASE(TrieArray, UnitTest_Escape_E0);
 }

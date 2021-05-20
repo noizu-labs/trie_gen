@@ -217,6 +217,7 @@ typedef struct noizu_trie_options {
 	uint8_t end_of_buffer_token : 1;
 	uint8_t hard_delim : 1;
 	uint8_t json_delim : 1;
+	uint8_t escape_chars : 1;
 } noizu_trie_options;
 
 /*!
@@ -228,7 +229,8 @@ typedef struct noizu_trie_state {
 
 	// Stream
 	offset_buffer* req;
-	uint8_t skip_next;
+	uint8_t skip_next : 7;
+	uint8_t escape : 1;
 
 	// Parse Details
 	TRIE_STATE match_type;
@@ -257,6 +259,8 @@ typedef struct noizu_trie_state {
 	// Options
 	noizu_trie_options options;
 } noizu_trie_state;
+
+TRIE_TOKEN noizu_trie__next_char(struct noizu_trie_state* state, struct noizu_trie_definition* definition, uint8_t* c);
 
 /*!
  * Init trie state for processing.

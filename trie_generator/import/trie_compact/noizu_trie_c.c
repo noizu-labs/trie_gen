@@ -75,28 +75,21 @@ TRIE_TOKEN noizu_trie__compact__validate(struct noizu_trie_state* state, struct 
 }
 
 TRIE_TOKEN noizu_trie__compact__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition) {
-	// Advance position (if halted due to end of stream)
-	if (state->skip_next) {
-		if ((state->req_position + state->skip_next) < state->req->buffer_size) {
-			state->req_position += state->skip_next;
-			state->skip_next = 0;
-		}
-		else return TRIE_BUFFER_END_ON_SKIP;
-	}
+	// Advance to next node in trie.
+	TRIE_CHAR_CODE c = 0;
+	TRIE_TOKEN r = noizu_trie__next_char(state, definition, &c);
+	if (!(r & TRIE_SUCCESS)) return r;
 
 	//----------------------------------
 	// Nested raw advance (other implementations move this to it's own method.)
 	//----------------------------------
 	TRIE_TOKEN advance_code = TRIE_NOT_FOUND;
 	// Advance to next node in trie.
-	TRIE_CHAR_CODE c = *(state->req->buffer + state->req_position);
 	TRIE_CHAR_CODE raw_char;
 	uint8_t has_token = 0;
 	struct noizu_trie__compact__definition* compact_trie = (struct noizu_trie__compact__definition*)definition->type_definition;
 	uint32_t last_index = state->position;
 	uint32_t next_index = last_index;
-
-	
 		
 	if ((!(state->options.hard_delim && state->options.delimiter == c)) && !(state->position == TRIE_NOT_FOUND && state->initialized)) {
 		TRIE_CHAR_CODE scan_for = ((struct noizu_trie__compact__definition*)definition->type_definition)->char_code(c);

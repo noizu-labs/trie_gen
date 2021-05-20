@@ -1,128 +1,139 @@
 
 
 #include "noizu_trie.h"
-#include "noizu_trie_c.h"
+#include "noizu_trie_a.h"
 
-
-
-// compact_test_trie: CharMap
-TRIE_CHAR_CODE __internal_compact_test_trie_cm(TRIE_CHAR_CODE c) {
-    if (c == '*') return 1;
-    if (c == 'c') return 2;
-    if (c == 'o') return 3;
-    if (c == 'n') return 4;
-    if (c == 't') return 5;
-    if (c == 'e') return 6;
-    if (c == 's') return 7;
-    if (c == 'd') return 8;
-    if (c == 'g') return 9;
-    if (c == 'r') return 10;
-    if (c == '_') return 11;
-    if (c == 'l') return 12;
-    if (c == 'i') return 13;
-    if (c == 'u') return 14;
-    if (c == 'a') return 15;
-    if (c == 'b') return 16;
-    if (c == 'f') return 17;
-    if (c == 'h') return 18;
-    if (c == '+') return 19;
-    if (c == 'p') return 20;
-    if (c == 'v') return 21;
-    if (c == 'm') return 22;
-    if (c == 'y') return 23;
-    if (c == 'w') return 24;
-    return 0;
-}
-
-TRIE_CHAR_CODE __internal_compact_test_trie_chars[] = {'*', 'c', 'o', 'n', 't', 'e', 's', 'd', 'g', 'r', '_', 'l', 'i', 'u', 'a', 'b', 'f', 'h', '+', 'p', 'v', 'm', 'y', 'w'};
-
-// compact_test_trie: GetToken
-TRIE_TOKEN __internal_compact_test_trie_token(uint32_t index, noizu_trie_definition* definition, uint8_t* has_token) {
-    *has_token = 1;
-    TRIE_TOKEN token = 0;
-    
-    if (index == 8) token = COMPACT_JK_CONTENTS;
-    else if (index == 23) token = COMPACT_JV_DEGREES_CELSIUS;
-    else if (index == 32) token = COMPACT_JV_DEGREES_CELSIUS_CONTENTS;
-    else if (index == 39) token = COMPACT_JK_ENABLED;
-    else if (index == 47) token = COMPACT_JK_FEATURED;
-    else if (index == 52) token = COMPACT_JK_FIELDS;
-    else if (index == 57) token = COMPACT_HELLO;
-    else if (index == 63) token = COMPACT_HELLO_HELLO;
-    else if (index == 66) token = COMPACT_JK_ONE;
-    else if (index == 72) token = COMPACT_JK_OPTIONS;
-    else if (index == 89) token = COMPACT_JV_RELATIVE_HUMIDITY;
-    else if (index == 94) token = COMPACT_JK_THREE;
-    else if (index == 96) token = COMPACT_JK_TWO;
-    else *has_token = 0;
-
-    return token;
-}
-
-
-
-// compact_test_trie: Node Binary| Bits per field = 11, required = 134
-unsigned char __internal_compact_test_trie_node_map[] = {
-0X08,0X22,0X44,0X60,
-0X90,0X12,0X82,0X60,
-0X48,0X09,0X41,0X38,
-0X08,0XC4,0XC0,0XA4,
-0X15,0X02,0X60,0X4C,
-0X09,0XC1,0X58,0X22,
-0X04,0XC0,0XB0,0X13,
-0X82,0XD0,0X5C,0X09,
-0XC1,0X58,0X22,0X04,
-0X60,0X90,0X12,0X82,
-0X60,0X48,0X09,0X41,
-0X38,0X06,0X3C,0X80,
-0XBC,0X18,0X02,0XC0,
-0X4C,0X0A,0000,0X8B,
-0X66,0X3D,0XE0,0X94,
-0X17,0X02,0XA0,0X4C,
-0X0A,0000,0X68,0X26,
-0X05,0X80,0XA0,0X13,
-0X81,0X25,0XCC,0X0B,
-0X01,0X60,0X23,0X06,
-0X60,0XC8,0X13,0X02,
-0XC0,0X58,0X08,0XC0,
-0X1A,0X64,0X14,0XC0,
-0X50,0X12,0X82,0XD0,
-0X46,0X09,0X01,0X38,
-0X0A,0X8C,0XC0,0XB0,
-0X17,0X82,0X50,0X5A,
-0X0D,0X41,0X30,0X2B,
-0X06,0X40,0XB8,0X1B,
-0X02,0XD0,0X50,0X0B,
-0X41,0X28,0X37,0000,
-0XA0,0XC8,0X95,0X02,
-0X60,0X4C,0X06,0X01,
-0X18,0000,};
-
-
-// compact_test_trie: Compact Trie Definition, max_sibling_jump=24 rows
-struct noizu_trie__compact__definition __internal_compact_test_trie_inner_def = {
-    .size = 97,
-    .tokens = 13,
-    .characters = 24,
-    .bit_length__character_code = 5,
-    .bit_length__sibling_relative_index = 5,
-    .bit_length__child_relative_index = 1,
-    .bit_length__child_relative_offset = 10,
-    .bit_length = 11,
-    .trie_raw = compact_test_trie_node_map,
-    .trie_raw_length = 134,
-    .char_map = __internal_compact_test_trie_chars,
-    .token_code = __internal_compact_test_trie_token,
-    .char_code = __internal_compact_test_trie_cm
+const noizu_trie_a __internal_struct_test_trie_arr[] = {
+	{0, 0, 0, 0},
+	{'*', 0, 2, 0},
+	{'c', 3, 102, 0},
+	{'d', 4, 10, 0},
+	{'e', 5, 33, 0},
+	{'f', 6, 50, 0},
+	{'h', 7, 62, 0},
+	{'o', 8, 72, 0},
+	{'r', 9, 80, 0},
+	{'t', 0, 96, 0},
+	{'e', 0, 11, 0},
+	{'g', 0, 12, 0},
+	{'r', 0, 13, 0},
+	{'e', 0, 14, 0},
+	{'e', 0, 15, 0},
+	{'s', 0, 16, 0},
+	{'_', 0, 17, 0},
+	{'c', 0, 18, 0},
+	{'e', 0, 19, 0},
+	{'l', 0, 20, 0},
+	{'s', 0, 21, 0},
+	{'i', 0, 22, 0},
+	{'u', 0, 23, 0},
+	{'s', 0, 24, STRUCT_JV_DEGREES_CELSIUS},
+	{'_', 0, 25, 0},
+	{'c', 0, 26, 0},
+	{'o', 0, 27, 0},
+	{'n', 0, 28, 0},
+	{'t', 0, 29, 0},
+	{'e', 0, 30, 0},
+	{'n', 0, 31, 0},
+	{'t', 0, 32, 0},
+	{'s', 0, 0, STRUCT_JV_DEGREES_CELSIUS_CONTENTS},
+	{'n', 34, 45, 0},
+	{'s', 0, 35, 0},
+	{'c', 0, 36, 0},
+	{'a', 0, 37, 0},
+	{'p', 0, 38, 0},
+	{'e', 0, 39, 0},
+	{'d', 0, 40, 0},
+	{'"', 0, 41, 0},
+	{'c', 0, 42, 0},
+	{'h', 0, 43, 0},
+	{'a', 0, 44, 0},
+	{'r', 0, 0, STRUCT_JV_ESCAPE},
+	{'a', 0, 46, 0},
+	{'b', 0, 47, 0},
+	{'l', 0, 48, 0},
+	{'e', 0, 49, 0},
+	{'d', 0, 0, STRUCT_JK_ENABLED},
+	{'e', 51, 56, 0},
+	{'i', 0, 52, 0},
+	{'e', 0, 53, 0},
+	{'l', 0, 54, 0},
+	{'d', 0, 55, 0},
+	{'s', 0, 0, STRUCT_JK_FIELDS},
+	{'a', 0, 57, 0},
+	{'t', 0, 58, 0},
+	{'u', 0, 59, 0},
+	{'r', 0, 60, 0},
+	{'e', 0, 61, 0},
+	{'d', 0, 0, STRUCT_JK_FEATURED},
+	{'e', 0, 63, 0},
+	{'l', 0, 64, 0},
+	{'l', 0, 65, 0},
+	{'o', 0, 66, STRUCT_HELLO},
+	{'+', 0, 67, 0},
+	{'h', 0, 68, 0},
+	{'e', 0, 69, 0},
+	{'l', 0, 70, 0},
+	{'l', 0, 71, 0},
+	{'o', 0, 0, STRUCT_HELLO_HELLO},
+	{'n', 73, 79, 0},
+	{'p', 0, 74, 0},
+	{'t', 0, 75, 0},
+	{'i', 0, 76, 0},
+	{'o', 0, 77, 0},
+	{'n', 0, 78, 0},
+	{'s', 0, 0, STRUCT_JK_OPTIONS},
+	{'e', 0, 0, STRUCT_JK_ONE},
+	{'e', 0, 81, 0},
+	{'l', 0, 82, 0},
+	{'a', 0, 83, 0},
+	{'t', 0, 84, 0},
+	{'i', 0, 85, 0},
+	{'v', 0, 86, 0},
+	{'e', 0, 87, 0},
+	{'_', 0, 88, 0},
+	{'h', 0, 89, 0},
+	{'u', 0, 90, 0},
+	{'m', 0, 91, 0},
+	{'i', 0, 92, 0},
+	{'d', 0, 93, 0},
+	{'i', 0, 94, 0},
+	{'t', 0, 95, 0},
+	{'y', 0, 0, STRUCT_JV_RELATIVE_HUMIDITY},
+	{'h', 97, 99, 0},
+	{'w', 0, 98, 0},
+	{'o', 0, 0, STRUCT_JK_TWO},
+	{'r', 0, 100, 0},
+	{'e', 0, 101, 0},
+	{'e', 0, 0, STRUCT_JK_THREE},
+	{'o', 0, 103, 0},
+	{'n', 0, 104, 0},
+	{'t', 0, 105, 0},
+	{'e', 0, 106, 0},
+	{'n', 0, 107, 0},
+	{'t', 0, 108, 0},
+	{'s', 0, 0, STRUCT_JK_CONTENTS}
 };
-struct noizu_trie_definition compact_test_trie = {
+
+
+
+struct noizu_trie__array__definition __internal_struct_test_trie_inner_def = {
+    .trie = __internal_struct_test_trie_arr,
+    .trie_length = 109,
+};
+
+
+
+struct noizu_trie_definition struct_test_trie = {
     .constant = 1,
-    .type = TRIE_COMPACT_TYPE,
-    .type_definition = &__internal_compact_test_trie_inner_def,
-    .trie_init = noizu_trie__compact__init,
-    .trie_free = noizu_trie__compact__free,
-    .trie_validate = noizu_trie__compact__validate,
-    .trie_advance = noizu_trie__compact__advance,
+    .type = TRIE_ARRAY_TYPE,
+    .type_definition = &__internal_struct_test_trie_inner_def,
+    .trie_init = noizu_trie__array__init,
+    .trie_free = noizu_trie__array__free,
+    .trie_validate = noizu_trie__array__validate,
+    .trie_advance = noizu_trie__array__advance,
     .trie_tokenize = NULL
 };
+
+
 

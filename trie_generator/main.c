@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 		structMode = (strncmp(argv[4], "struct", 6) == 0) ? 1 : 0;
 		compactMode = (strncmp(argv[4], "compact", 6) == 0) ? 1 : 0;
 	}
-	compactMode = 1;
+	
 
 	//---------------------------------
 	// Runtime Settings

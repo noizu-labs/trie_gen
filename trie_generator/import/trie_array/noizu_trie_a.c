@@ -60,16 +60,32 @@ TRIE_TOKEN noizu_trie__array__validate(struct noizu_trie_state* state, struct no
 }
 
 TRIE_TOKEN noizu_trie__array__advance(struct noizu_trie_state* state, struct noizu_trie_definition* definition) {
-	// Advance position (if halted due to end of stream)
-	if (state->skip_next) {
-		if ((state->req_position + state->skip_next) < state->req->buffer_size) {
-			state->req_position += state->skip_next;
-			state->skip_next = 0;
-		} else return TRIE_BUFFER_END_ON_SKIP;
+	// Advance to next node in trie.
+	TRIE_CHAR_CODE c = 0;
+	TRIE_TOKEN r = noizu_trie__next_char(state, definition, &c);
+	if (!(r & TRIE_SUCCESS)) return r;
+
+	if (c == '\\' && state->options.escape_chars || state->escape ) {		
+		if (state->escape || (state->req_position + 1 < state->req->buffer_size)) {
+			state->escape = 0;
+			uint8_t escaped = (state->escape) ? c : *(state->req->buffer + state->req_position + 1);
+			if (escaped == '\\') c = '\\';
+			else if (escaped == 'n') c = '\n';
+			else if (escaped == 'r') c = '\r';
+			else if (escaped == 't') c = '\t';
+			else if (escaped == '"') c = '"';
+			else if (escaped == '\'') c = '\'';
+			else {
+				// error state
+			}
+		}
+		else {
+			state->skip_next = 1;
+			state->escape = 1;
+			return TRIE_BUFFER_END;
+		}
 	}
 
-	// Advance to next node in trie.
-	TRIE_CHAR_CODE c = *(state->req->buffer + state->req_position);
 	TRIE_A_UNIT last_index = state->position;
 	TRIE_A_UNIT next_index = (state->options.hard_delim && state->options.delimiter == c) ? 0 : noizu_trie_a_advance(c, last_index, ((struct noizu_trie__array__definition*)definition->type_definition)->trie);
 	if (next_index >= ((struct noizu_trie__array__definition*)definition->type_definition)->trie_length) {

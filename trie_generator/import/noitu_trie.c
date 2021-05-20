@@ -1,5 +1,39 @@
 #include "noizu_trie.h"
 
+TRIE_TOKEN noizu_trie__next_char(struct noizu_trie_state* state, struct noizu_trie_definition* definition, uint8_t* out_c) {	
+	if (state->skip_next) {
+		if ((state->req_position + state->skip_next) < state->req->buffer_size) {
+			state->req_position += state->skip_next;
+			state->skip_next = 0;
+		}
+		else return TRIE_BUFFER_END_ON_SKIP;
+	}
+
+	uint8_t c = *(state->req->buffer + state->req_position);
+	if ((c == '\\' && state->options.escape_chars) || state->escape) {
+		if (state->escape) {
+			state->escape = 0;
+			if (c == '\\') c = '\\';
+			else if (c == 'n') c = '\n';
+			else if (c == 'r') c = '\r';
+			else if (c == 't') c = '\t';
+			else if (c == '"') c = '"';
+			else if (c == '\'') c = '\'';
+			else {
+				// error state
+			}
+		}
+		else {
+			state->skip_next = 1;
+			state->escape = 1;
+			return noizu_trie__next_char(state, definition, out_c);
+		}
+	}
+	*out_c = c;
+	return TRIE_SUCCESS;
+}
+
+
 TRIE_TOKEN noizu_trie__init(offset_buffer* req, struct noizu_trie_definition* definition, struct noizu_trie_options options, struct noizu_trie_state* out) {
 	if (out == NULL) return TRIE_ARGUMENT_ERROR__NULL_STATE;
 	void* p = out->type_state;

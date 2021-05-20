@@ -340,3 +340,33 @@ TEST(TrieCompact, UnitTest_JsonDelim_KL1)
     TRIE_TOKEN o = noizu_trie__tokenize(&state, &compact_test_trie, NULL);
     TEST_ASSERT_TOKENIZER_STATE(o, &state, TRIE_DELIM_EXIT, TRIE_MATCH, COMPACT_HELLO_HELLO, COMPACT_HELLO, 0, '"');
 }
+
+
+
+TEST(TrieCompact, UnitTest_Escape_E1)
+{
+    struct noizu_trie_options options = { 0, .delimiter = '+', .keep_last_token = 0,.hard_delim = 0, .json_delim = 1, .escape_chars = 1 };
+    offset_buffer* req = calloc(1, sizeof(offset_buffer));
+    req->buffer = calloc(256, sizeof(uint8_t));
+    req->buffer_size = sprintf_s(req->buffer, 256, "\"escaped\\\"char\": 1234");
+    req->buffer_pos = 1;
+    struct noizu_trie_state state = { 0 };
+    noizu_trie__init(req, &compact_test_trie, options, &state);
+    TRIE_TOKEN o = noizu_trie__tokenize(&state, &compact_test_trie, NULL);
+    TEST_ASSERT_TOKENIZER_STATE(o, &state, TRIE_DELIM_EXIT, TRIE_MATCH, COMPACT_JV_ESCAPE, 0, 0, '"');
+}
+
+
+
+TEST(TrieCompact, UnitTest_Escape_E0)
+{
+    struct noizu_trie_options options = { 0, .delimiter = '+', .keep_last_token = 0,.hard_delim = 0, .json_delim = 1, .escape_chars = 0 };
+    offset_buffer* req = calloc(1, sizeof(offset_buffer));
+    req->buffer = calloc(256, sizeof(uint8_t));
+    req->buffer_size = sprintf_s(req->buffer, 256, "\"escaped\\\"char\": 1234");
+    req->buffer_pos = 1;
+    struct noizu_trie_state state = { 0 };
+    noizu_trie__init(req, &compact_test_trie, options, &state);
+    TRIE_TOKEN o = noizu_trie__tokenize(&state, &compact_test_trie, NULL);
+    TEST_ASSERT_TOKENIZER_STATE(o, &state, TRIE_END_PARSE_EXIT, TRIE_NO_MATCH, 0, 0, 0, '\\');
+}
