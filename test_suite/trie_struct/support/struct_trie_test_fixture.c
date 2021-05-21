@@ -125,6 +125,7 @@ struct noizu_trie_definition struct_test_trie = {
     .type = TRIE_STRUCT_TYPE,
     .type_definition = &__internal_struct_test_trie_inner_def,
     .trie_init = noizu_trie__struct__init,
+    .trie_reset = noizu_trie__struct__reset,
     .trie_free = noizu_trie__struct__free,
     .trie_validate = noizu_trie__struct__validate,
     .trie_advance = noizu_trie__struct__advance,

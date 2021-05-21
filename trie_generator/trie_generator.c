@@ -344,6 +344,7 @@ void gen_array_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
 	fprintf(fptr, "    .type = TRIE_ARRAY_TYPE,\n");
 	fprintf(fptr, "    .type_definition = &__internal_%s_inner_def,\n", genVar);
 	fprintf(fptr, "    .trie_init = noizu_trie__array__init,\n");
+	fprintf(fptr, "    .trie_reset = noizu_trie__array__reset,\n");
 	fprintf(fptr, "    .trie_free = noizu_trie__array__free,\n");
 	fprintf(fptr, "    .trie_validate = noizu_trie__array__validate,\n");
 	fprintf(fptr, "    .trie_advance = noizu_trie__array__advance,\n");
@@ -497,6 +498,7 @@ void gen_compact_format(char* genVar, NoizuAutoTrie* index, noizu_auto_trie_comp
 	fprintf(fptr, "    .type = TRIE_COMPACT_TYPE,\n");
 	fprintf(fptr, "    .type_definition = &__internal_%s_inner_def,\n", genVar);
 	fprintf(fptr, "    .trie_init = noizu_trie__compact__init,\n");
+	fprintf(fptr, "    .trie_reset = noizu_trie__compact__reset,\n");
 	fprintf(fptr, "    .trie_free = noizu_trie__compact__free,\n");
 	fprintf(fptr, "    .trie_validate = noizu_trie__compact__validate,\n");
 	fprintf(fptr, "    .trie_advance = noizu_trie__compact__advance,\n");
@@ -545,6 +547,7 @@ void gen_struct_format(char* genVar, NoizuAutoTrie* index, FILE* fptr) {
 	fprintf(fptr, "    .type = TRIE_STRUCT_TYPE,\n");
 	fprintf(fptr, "    .type_definition = &__internal_%s_inner_def,\n", genVar);
 	fprintf(fptr, "    .trie_init = noizu_trie__struct__init,\n");
+	fprintf(fptr, "    .trie_reset = noizu_trie__struct__reset,\n");
 	fprintf(fptr, "    .trie_free = noizu_trie__struct__free,\n");
 	fprintf(fptr, "    .trie_validate = noizu_trie__struct__validate,\n");
 	fprintf(fptr, "    .trie_advance = noizu_trie__struct__advance,\n");

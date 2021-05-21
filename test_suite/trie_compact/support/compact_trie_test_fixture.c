@@ -123,6 +123,7 @@ struct noizu_trie_definition compact_test_trie = {
     .type = TRIE_COMPACT_TYPE,
     .type_definition = &__internal_compact_test_trie_inner_def,
     .trie_init = noizu_trie__compact__init,
+    .trie_reset = noizu_trie__compact__reset,
     .trie_free = noizu_trie__compact__free,
     .trie_validate = noizu_trie__compact__validate,
     .trie_advance = noizu_trie__compact__advance,
